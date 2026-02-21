@@ -198,15 +198,10 @@ export class ProactiveEngine {
     return messages;
   }
 
-  /** Get SOUL.md content — personality drives all behavior */
-  private async getSoulContext(): Promise<string> {
-    return this.soul.getRawSoul();
-  }
-
   /** Generate a morning greeting with context */
   private async generateMorningGreeting(): Promise<string | null> {
     try {
-      const soulContext = await this.getSoulContext();
+      const soul = await this.soul.getSoul();
       const facts = await this.memory.getRecentFacts(10);
       const tasks = await this.taskStore.getActive();
       const reminders = await this.reminderStore.getActive();
@@ -229,11 +224,15 @@ export class ProactiveEngine {
         }
       }
 
+      const lang = this.config.language === 'no' ? 'Write in Norwegian.' : 'Write in English.';
       const text = await generateCheapResponse({
-        prompt: `Here is who you are:\n\n${soulContext}\n\nGenerate a morning greeting for your human.
+        prompt: `You are ${soul.name}. Generate a brief, warm morning greeting for your human.
 ${context.length > 0 ? `\nContext:\n${context.join('\n')}` : ''}
 
-Keep it to 1-2 sentences. Reference something relevant if you can.`,
+Keep it to 1-2 sentences. Be natural, not performative. Reference something relevant if you can.
+Don't be generic — make it feel personal based on what you know.
+If there's nothing specific to reference, keep it very short.
+${lang}`,
       });
 
       return text || null;
@@ -245,14 +244,17 @@ Keep it to 1-2 sentences. Reference something relevant if you can.`,
   /** Generate a check-in message after silence */
   private async generateCheckIn(): Promise<string | null> {
     try {
-      const soulContext = await this.getSoulContext();
+      const soul = await this.soul.getSoul();
       const summaries = await this.memory.getConversationSummaries(3);
 
+      const lang = this.config.language === 'no' ? 'Write in Norwegian.' : 'Write in English.';
       const text = await generateCheapResponse({
-        prompt: `Here is who you are:\n\n${soulContext}\n\nIt's been a couple of days since you last talked to your human.
+        prompt: `You are ${soul.name}. It's been a couple of days since you last talked to your human.
 ${summaries.length > 0 ? `\nRecent conversation topics: ${summaries.join('; ')}` : ''}
 
-Generate a brief, natural check-in. Keep it to 1 sentence.`,
+Generate a brief, natural check-in. Don't be clingy. Just a quick touch-base.
+Keep it to 1 sentence. Be warm but not needy.
+${lang}`,
       });
 
       return text || null;
@@ -264,9 +266,9 @@ Generate a brief, natural check-in. Keep it to 1 sentence.`,
   /** Generate an insight message by connecting facts */
   private async generateInsight(): Promise<string | null> {
     try {
-      const soulContext = await this.getSoulContext();
+      const soul = await this.soul.getSoul();
       const facts = await this.memory.getRecentFacts(30);
-      if (facts.length < 10) return null;
+      if (facts.length < 10) return null; // Need enough facts to find connections
 
       // Only send insights occasionally (max once per 3 days)
       const lastInsight = this.state.lastFollowUp
@@ -275,13 +277,23 @@ Generate a brief, natural check-in. Keep it to 1 sentence.`,
       const daysSinceInsight = (Date.now() - lastInsight.getTime()) / (1000 * 60 * 60 * 24);
       if (daysSinceInsight < 3) return null;
 
+      const lang = this.config.language === 'no' ? 'Write in Norwegian.' : 'Write in English.';
       const text = await generateCheapResponse({
-        prompt: `Here is who you are:\n\n${soulContext}\n\nLook at these facts about your human and find an interesting connection or pattern they might not have noticed.
+        prompt: `You are ${soul.name}. Look at these facts about your human and find an interesting connection, pattern, or observation that they might not have noticed themselves.
 
 Facts:
 ${facts.map(f => `- ${f.subject} ${f.predicate} ${f.object}`).join('\n')}
 
-Keep it to 1-2 sentences. If nothing interesting connects, respond with just "NONE".`,
+Rules:
+- Only share if you find a genuinely interesting connection
+- Keep it to 1-2 sentences
+- Be natural, not analytical
+- Frame it as a thought, not a report
+- If nothing interesting connects, respond with just "NONE"
+- ${lang}
+
+Example: "Jeg la merke til at du nevnte stress rundt deadlines forrige uke, og nå jobber du sent igjen. Alt bra?"
+Example: "Du snakker mye om prosjektet ditt i det siste. Virker som det betyr mye for deg."`,
       });
 
       if (!text || text.trim().toUpperCase() === 'NONE') return null;
@@ -301,11 +313,14 @@ Keep it to 1-2 sentences. If nothing interesting connects, respond with just "NO
       const daysSince = (Date.now() - lastDiscovery.getTime()) / (1000 * 60 * 60 * 24);
       if (daysSince < 2) return null;
 
+      // Get facts about user interests
       const facts = await this.memory.getRecentFacts(30);
-      if (facts.length < 5) return null;
+      if (facts.length < 5) return null; // Need enough context
 
+      // Ask LLM to pick a search topic from known interests
+      const soul = await this.soul.getSoul();
       const topicResponse = await generateCheapResponse({
-        prompt: `Based on these facts about your human, pick ONE specific topic to search for that they would genuinely find interesting.
+        prompt: `Based on these facts about your human, pick ONE specific topic to search for that they would genuinely find interesting. Pick something they care about, not something generic.
 
 Facts:
 ${facts.map(f => `- ${f.subject} ${f.predicate} ${f.object}`).join('\n')}
@@ -316,11 +331,16 @@ Respond with JUST the search query (3-6 words), nothing else. If no good topic e
       if (!topicResponse || topicResponse.trim().toUpperCase() === 'NONE') return null;
       const searchTopic = topicResponse.trim();
 
-      const soulContext = await this.getSoulContext();
+      // Use web search tool if available — for now generate a curated message
       const text = await generateCheapResponse({
-        prompt: `Here is who you are:\n\n${soulContext}\n\nYou found something interesting about "${searchTopic}" because you know your human cares about this.
+        prompt: `You are ${soul.name}. You searched for "${searchTopic}" because you know your human is interested in this.
 
-Write a short message (1-3 sentences) sharing it naturally, like a friend who found something cool.`,
+Write a short message (1-3 sentences) sharing something interesting about this topic. Include a specific detail or angle they might not know. If you can reference a recent development, do that.
+
+Be natural, like a friend sharing something they found. Not a news report.
+Use Norwegian if the language preference is ${this.config.language}.
+
+Example: "Hei, jeg leste litt om [topic]. Visste du at [interesting thing]? Tenkte det var noe for deg."`,
       });
 
       if (!text) return null;
