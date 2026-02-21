@@ -71,7 +71,7 @@ export async function runAgentQuery(options: AgentQueryOptions): Promise<AgentQu
       }
       costUsd = result.total_cost_usd;
       numTurns = result.num_turns;
-      console.log(`[Huginn] Query complete. Cost: $${costUsd?.toFixed(4) || '?'}, turns: ${numTurns || '?'}`);
+      console.log(`[Mimir] Query complete. Cost: $${costUsd?.toFixed(4) || '?'}, turns: ${numTurns || '?'}`);
     }
   }
 

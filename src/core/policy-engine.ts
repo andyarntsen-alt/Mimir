@@ -14,7 +14,7 @@ import type { PolicyConfig, PolicyDecision, RiskLevel, AuditEntry } from './type
  * The Policy Engine — Mimir's security boundary.
  *
  * This is 100% deterministic. No LLM calls, no prompt injection surface.
- * It sits between the LLM brain (Huginn) and the tools (filesystem, shell, browser).
+ * It sits between the LLM brain and the tools (filesystem, shell, browser).
  *
  * Design principles:
  * 1. Deny-by-default — everything is blocked unless explicitly allowed
@@ -27,9 +27,6 @@ export class PolicyEngine {
   private dataDir: string;
   private auditPath: string;
   private resolvedAllowedDirs: string[];
-
-  // Task mode: when active, auto-approves medium risk ops within task scope
-  private taskMode: { active: boolean; workingDir: string; taskId: string } | null = null;
 
   // ─── Hardcoded deny patterns (cannot be overridden) ──────
   private static readonly BLOCKED_PATH_PATTERNS = [
@@ -471,81 +468,5 @@ export class PolicyEngine {
   /** Get the config for external access */
   getConfig(): PolicyConfig {
     return this.config;
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // TASK MODE — auto-approve within approved plan scope
-  // ═══════════════════════════════════════════════════════════
-
-  /** Enter task mode — auto-approves medium risk ops in the working dir.
-   *  Blocked and high risk operations still require manual approval. */
-  enterTaskMode(taskId: string, workingDir: string): void {
-    const resolved = this.resolvePath(workingDir);
-    this.taskMode = { active: true, workingDir: resolved, taskId };
-    console.log(`[Policy] Task mode ON: ${taskId} in ${resolved}`);
-  }
-
-  /** Exit task mode */
-  exitTaskMode(): void {
-    if (this.taskMode) {
-      console.log(`[Policy] Task mode OFF: ${this.taskMode.taskId}`);
-    }
-    this.taskMode = null;
-  }
-
-  /** Check if task mode is active */
-  isTaskMode(): boolean {
-    return this.taskMode?.active ?? false;
-  }
-
-  /**
-   * Evaluate with task mode awareness.
-   * In task mode, medium-risk operations within the task working directory
-   * are downgraded to not require approval. Blocked ops are never auto-approved.
-   */
-  evaluateForTask(toolName: string, args: Record<string, unknown>): PolicyDecision {
-    const decision = this.evaluate(toolName, args);
-
-    // If not in task mode, return normal decision
-    if (!this.taskMode?.active) return decision;
-
-    // Never auto-approve blocked operations
-    if (decision.risk === 'blocked') return decision;
-
-    // Never auto-approve high risk (delete, download)
-    if (decision.risk === 'high') return decision;
-
-    // Auto-approve medium risk if within task working directory
-    if (decision.requiresApproval && decision.risk === 'medium') {
-      // Check if the operation is within the task's working directory
-      const path = String(args.path || args.from || args.savePath || '');
-      if (path) {
-        const resolved = this.resolvePath(path);
-        if (resolved.startsWith(this.taskMode.workingDir)) {
-          return {
-            ...decision,
-            requiresApproval: false,
-            reason: `${decision.reason} [auto-godkjent i oppgavemodus]`,
-          };
-        }
-      }
-
-      // For shell commands, auto-approve if cwd is in task dir
-      if (toolName === 'run_command') {
-        const cwd = String(args.cwd || '');
-        if (cwd) {
-          const resolvedCwd = this.resolvePath(cwd);
-          if (resolvedCwd.startsWith(this.taskMode.workingDir)) {
-            return {
-              ...decision,
-              requiresApproval: false,
-              reason: `${decision.reason} [auto-godkjent i oppgavemodus]`,
-            };
-          }
-        }
-      }
-    }
-
-    return decision;
   }
 }

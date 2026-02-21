@@ -15,15 +15,12 @@ import { createConversationSearchTool } from './conversation-search.js';
 import { createFilesystemTools } from './filesystem.js';
 import { createShellTools } from './shell.js';
 import { createBrowserTools } from './browser.js';
-import { createScreenshotTool } from './screenshot.js';
 import { createGitTools } from './git.js';
 import { createClipboardTools } from './clipboard.js';
 import { createOpenTool } from './open.js';
-import { PluginLoader } from './plugin-loader.js';
 
 export { ReminderStore } from './reminders.js';
 export { TaskStore } from './tasks.js';
-export { PluginLoader } from './plugin-loader.js';
 
 /**
  * Initialize all built-in tools + plugins.
@@ -82,10 +79,6 @@ export async function initializeTools(
       console.log('[Tools] Browser tools enabled');
     }
 
-    // Screenshot tool (with approval gating)
-    tools.push(createScreenshotTool(dataDir, approval));
-    console.log('[Tools] Screenshot tool enabled');
-
     // Git tools — always available when policy is configured
     tools.push(...createGitTools(policy, approval));
     console.log('[Tools] Git tools enabled');
@@ -97,15 +90,6 @@ export async function initializeTools(
     // Open tool (macOS open command)
     tools.push(createOpenTool(policy, approval));
     console.log('[Tools] Open tool enabled');
-  }
-
-  // Load plugins
-  const pluginLoader = new PluginLoader(dataDir);
-  const pluginTools = await pluginLoader.loadPlugins();
-  tools.push(...pluginTools);
-
-  if (pluginTools.length > 0) {
-    console.log(`[Tools] Loaded ${pluginTools.length} plugin tools`);
   }
 
   console.log(`[Tools] ${tools.length} tools available`);

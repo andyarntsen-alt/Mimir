@@ -2,8 +2,7 @@
 // MIMIR — Memory Engine Tests
 // ═══════════════════════════════════════════════════════════
 
-import { describe, it, beforeEach, afterEach } from 'node:test';
-import assert from 'node:assert/strict';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -32,11 +31,11 @@ describe('MemoryEngine', () => {
         source: 'conversation',
       });
 
-      assert.ok(fact.id);
-      assert.equal(fact.subject, 'Andy');
-      assert.equal(fact.predicate, 'works at');
-      assert.equal(fact.object, 'Tech Company');
-      assert.equal(fact.invalidAt, null);
+      expect(fact.id).toBeTruthy();
+      expect(fact.subject).toBe('Andy');
+      expect(fact.predicate).toBe('works at');
+      expect(fact.object).toBe('Tech Company');
+      expect(fact.invalidAt).toBeNull();
     });
 
     it('should search facts', async () => {
@@ -54,10 +53,10 @@ describe('MemoryEngine', () => {
       });
 
       const results = await memory.searchFacts('Andy');
-      assert.equal(results.length, 2);
+      expect(results.length).toBe(2);
 
       const tsResults = await memory.searchFacts('TypeScript');
-      assert.equal(tsResults.length, 1);
+      expect(tsResults.length).toBe(1);
     });
 
     it('should invalidate contradicting facts', async () => {
@@ -76,14 +75,14 @@ describe('MemoryEngine', () => {
       });
 
       const currentFacts = await memory.searchFacts('works at');
-      assert.equal(currentFacts.length, 1);
-      assert.equal(currentFacts[0].object, 'Company B');
+      expect(currentFacts.length).toBe(1);
+      expect(currentFacts[0].object).toBe('Company B');
 
       // Old fact should be invalidated but still exist
       const allFacts = await memory.getAllFacts();
       const invalidated = allFacts.filter(f => f.invalidAt !== null);
-      assert.equal(invalidated.length, 1);
-      assert.equal(invalidated[0].object, 'Company A');
+      expect(invalidated.length).toBe(1);
+      expect(invalidated[0].object).toBe('Company A');
     });
 
     it('should persist facts across reloads', async () => {
@@ -99,7 +98,7 @@ describe('MemoryEngine', () => {
       await memory2.initialize();
 
       const facts = await memory2.searchFacts('Chess');
-      assert.equal(facts.length, 1);
+      expect(facts.length).toBe(1);
     });
 
     it('should return recent facts sorted by time', async () => {
@@ -109,7 +108,7 @@ describe('MemoryEngine', () => {
       await memory.addFact({ subject: 'B', predicate: 'is', object: 'second', source: 'conversation' });
 
       const recent = await memory.getRecentFacts(2);
-      assert.equal(recent[0].subject, 'B'); // Most recent first
+      expect(recent[0].subject).toBe('B'); // Most recent first
     });
   });
 
@@ -121,9 +120,9 @@ describe('MemoryEngine', () => {
         attributes: { role: 'developer' },
       });
 
-      assert.ok(entity.id);
-      assert.equal(entity.name, 'Andy');
-      assert.equal(entity.type, 'person');
+      expect(entity.id).toBeTruthy();
+      expect(entity.name).toBe('Andy');
+      expect(entity.type).toBe('person');
     });
 
     it('should update existing entity', async () => {
@@ -139,8 +138,8 @@ describe('MemoryEngine', () => {
         attributes: { hobby: 'chess' },
       });
 
-      assert.equal(updated.attributes.role, 'developer');
-      assert.equal(updated.attributes.hobby, 'chess');
+      expect(updated.attributes.role).toBe('developer');
+      expect(updated.attributes.hobby).toBe('chess');
     });
 
     it('should find entities by name', async () => {
@@ -151,8 +150,8 @@ describe('MemoryEngine', () => {
       });
 
       const found = await memory.findEntity('andy'); // case insensitive
-      assert.ok(found);
-      assert.equal(found!.name, 'Andy');
+      expect(found).toBeTruthy();
+      expect(found!.name).toBe('Andy');
     });
   });
 
@@ -173,8 +172,8 @@ describe('MemoryEngine', () => {
       await memory.saveConversation(convo);
 
       const loaded = await memory.getConversations(1);
-      assert.equal(loaded.length, 1);
-      assert.equal(loaded[0].messages.length, 2);
+      expect(loaded.length).toBe(1);
+      expect(loaded[0].messages.length).toBe(2);
     });
   });
 });

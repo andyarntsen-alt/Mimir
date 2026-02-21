@@ -86,7 +86,7 @@ export function buildMcpServer(memory: MemoryEngine, tools: Tool[]) {
     );
   }
 
-  console.log(`[Huginn] Registered ${mcpTools.length} MCP tools`);
+  console.log(`[Mimir] Registered ${mcpTools.length} MCP tools`);
 
   return createSdkMcpServer({
     name: 'mimir-tools',

@@ -1,6 +1,5 @@
 // ═══════════════════════════════════════════════════════════
 // MIMIR — Entry Point
-// Where two ravens take flight
 // ═══════════════════════════════════════════════════════════
 
 import { readFile } from 'node:fs/promises';
@@ -9,45 +8,13 @@ import { join } from 'node:path';
 import YAML from 'yaml';
 import cron from 'node-cron';
 import type { MimirConfig, PolicyConfig } from './core/types.js';
-import { HuginnRuntime } from './core/runtime.js';
+import { MimirRuntime } from './core/runtime.js';
 import { MemoryEngine } from './memory/memory-engine.js';
-import { SoulManager } from './identity/soul-manager.js';
-import { GoalsManager } from './identity/goals-manager.js';
-import { Reflector } from './reflection/reflector.js';
 import { MimirBot } from './telegram/bot.js';
-import { ProactiveEngine } from './telegram/proactive.js';
 import { generateCheapResponse } from './core/llm.js';
 import { PolicyEngine } from './core/policy-engine.js';
 import { ApprovalManager } from './telegram/approval.js';
 import { initializeTools } from './tools/index.js';
-
-/** Turn reflection insights into a natural message worth sharing */
-async function generateShareableInsight(soulName: string, insights: string[], language: string = 'no'): Promise<string | null> {
-  try {
-    const text = await generateCheapResponse({
-      prompt: `You are ${soulName}. During your reflection, you discovered these insights:
-${insights.map(i => `- ${i}`).join('\n')}
-
-If any of these are genuinely interesting or useful to share with your human, write a short, natural message (1-2 sentences). Frame it as a thought you had, not a report.
-
-If none are worth sharing (too generic, too meta, or just internal bookkeeping), respond with just "NONE".
-
-Examples of good messages:
-- "Jeg tenkte på noe. Du har snakket mye om [X] i det siste, men aldri nevnt [Y]. Bare nysgjerrig."
-- "Hei, noe slo meg: [observation]. Tenkte det var verdt å nevne."
-
-Examples of NOT worth sharing:
-- "I noticed the user prefers Norwegian" (boring metadata)
-- "Interaction count has increased" (internal bookkeeping)
-
-${language === 'no' ? 'Write in Norwegian.' : 'Write in English.'}`,
-    });
-    if (!text || text.trim().toUpperCase() === 'NONE') return null;
-    return text;
-  } catch {
-    return null;
-  }
-}
 
 /** Default policy config — conservative defaults */
 const DEFAULT_POLICY: PolicyConfig = {
@@ -59,19 +26,15 @@ const DEFAULT_POLICY: PolicyConfig = {
 };
 
 /**
- * Start Mimir — the full system.
+ * Start Mimir.
  *
- * Initialization order:
  * 1. Load config
- * 2. Initialize memory (Mimir — the memory raven)
- * 3. Initialize soul (identity system)
- * 4. Initialize policy engine + approval system
- * 5. Initialize tools (+ plugins)
- * 6. Initialize reflector
- * 7. Initialize runtime (Huginn — the reasoning raven)
- * 8. Initialize proactive engine
- * 9. Start Telegram bot
- * 10. Start cron jobs (reminders, reflection, proactive)
+ * 2. Initialize memory
+ * 3. Initialize policy engine + approval
+ * 4. Initialize tools
+ * 5. Initialize runtime
+ * 6. Start Telegram bot
+ * 7. Start reminder cron
  */
 export async function startMimir(dataDir: string): Promise<void> {
   console.log('🐦 Mimir is waking up...\n');
@@ -86,7 +49,7 @@ export async function startMimir(dataDir: string): Promise<void> {
   const configContent = await readFile(configPath, 'utf-8');
   const config: MimirConfig = YAML.parse(configContent);
 
-  // Resolve env: references in API key
+  // Resolve env: references
   if (config.apiKey.startsWith('env:')) {
     const envVar = config.apiKey.replace('env:', '');
     const value = process.env[envVar];
@@ -97,7 +60,6 @@ export async function startMimir(dataDir: string): Promise<void> {
     config.apiKey = value;
   }
 
-  // Resolve telegram token env references
   if (config.telegramToken.startsWith('env:')) {
     const envVar = config.telegramToken.replace('env:', '');
     const value = process.env[envVar];
@@ -115,17 +77,7 @@ export async function startMimir(dataDir: string): Promise<void> {
   const memory = new MemoryEngine(dataDir);
   await memory.initialize();
 
-  // ─── 3. Initialize Soul ────────────────────────────────
-  console.log('👤 Loading soul...');
-  const soul = new SoulManager(dataDir);
-  await soul.initialize();
-
-  // ─── 3b. Initialize Goals ───────────────────────────────
-  console.log('🎯 Loading goals...');
-  const goals = new GoalsManager(dataDir);
-  await goals.initialize();
-
-  // ─── 4. Initialize Policy Engine + Approval ─────────────
+  // ─── 3. Initialize Policy Engine + Approval ─────────────
   const policyConfig: PolicyConfig = config.policy || DEFAULT_POLICY;
   let policyEngine: PolicyEngine | undefined;
   let approvalManager: ApprovalManager | undefined;
@@ -142,119 +94,58 @@ export async function startMimir(dataDir: string): Promise<void> {
     console.log(`[Policy] Browser: ${policyConfig.browser_enabled ? 'ON' : 'OFF'}`);
   }
 
-  // ─── 5. Initialize Tools ───────────────────────────────
+  // ─── 4. Initialize Tools ───────────────────────────────
   console.log('🔧 Loading tools...');
-  const { tools, reminderStore, taskStore } = await initializeTools(
+  const { tools, reminderStore } = await initializeTools(
     dataDir, config, memory, policyEngine, approvalManager
   );
 
-  // ─── 6. Initialize Reflector ───────────────────────────
-  console.log('🪞 Setting up reflection...');
-  const reflector = new Reflector(config, memory, soul, goals);
-
-  // ─── 7. Initialize Runtime ─────────────────────────────
-  console.log('⚡ Starting Huginn runtime...');
-  const runtime = new HuginnRuntime({
+  // ─── 5. Initialize Runtime ─────────────────────────────
+  console.log('⚡ Starting runtime...');
+  const runtime = new MimirRuntime({
     config,
     memoryEngine: memory,
-    soulManager: soul,
-    goalsManager: goals,
-    reflector,
     tools,
   });
 
-  // ─── 8. Initialize Proactive Engine ────────────────────
-  console.log('🔔 Setting up proactive messaging...');
-  const proactive = new ProactiveEngine(config, memory, soul, reminderStore, taskStore);
-  await proactive.initialize();
-
-  // ─── 9. Start Telegram Bot ─────────────────────────────
+  // ─── 6. Start Telegram Bot ─────────────────────────────
   console.log('💬 Connecting to Telegram...');
-  const bot = new MimirBot(config, runtime, reflector, soul, memory, goals);
-  bot.setProactiveEngine(proactive);
+  const bot = new MimirBot(config, runtime, memory);
 
-  // Connect approval manager to bot (for inline keyboard callbacks)
   if (approvalManager) {
     bot.setApprovalManager(approvalManager);
   }
 
   await bot.start();
 
-  // ─── 10. Start Cron Jobs ────────────────────────────────
+  // ─── 7. Reminder Cron ──────────────────────────────────
+  let reminderRunning = false;
 
-  // Check reminders every minute — deliver through Huginn for natural phrasing
   cron.schedule('* * * * *', async () => {
-    const due = await reminderStore.getDue();
-    for (const reminder of due) {
-      console.log(`[Reminder] Due: ${reminder.text}`);
-      for (const userId of config.allowedUsers) {
-        try {
-          const response = await runtime.processMessage(
-            `[SYSTEM: A reminder is now due. Remind the user about: "${reminder.text}". Be natural and brief — don't say "you asked me to remind you", just bring it up naturally.]`,
-            userId.toString(),
-          );
-          await bot.sendMessage(userId, response);
-        } catch (err) {
-          await bot.sendMessage(userId, `⏰ Reminder: ${reminder.text}`).catch(() => {});
-          console.error(`[Reminder] Failed to deliver to ${userId}:`, err);
-        }
-      }
-      await reminderStore.markNotified(reminder.id);
-    }
-  });
-
-  // Check for proactive messages every 15 minutes
-  cron.schedule('*/15 * * * *', async () => {
+    if (reminderRunning) return;
+    reminderRunning = true;
     try {
-      const messages = await proactive.checkForMessages();
-      for (const msg of messages) {
+      const due = await reminderStore.getDue();
+      for (const reminder of due) {
+        console.log(`[Reminder] Due: ${reminder.text}`);
         for (const userId of config.allowedUsers) {
-          await bot.sendMessage(userId, msg.text);
-          // Store proactive message in memory so Mimir remembers what it said
-          await memory.saveConversation({
-            id: `proactive-${Date.now()}`,
-            startedAt: new Date().toISOString(),
-            messages: [{
-              role: 'assistant',
-              content: msg.text,
-              timestamp: new Date().toISOString(),
-              metadata: { trigger: msg.trigger, proactive: true },
-            }],
-          });
-        }
-      }
-    } catch (error) {
-      console.error('[Cron] Proactive check failed:', error);
-    }
-  });
-
-  // Reflection check every 6 hours — share interesting insights with user
-  cron.schedule('0 */6 * * *', async () => {
-    try {
-      const result = await runtime.maybeReflect();
-      // If reflection produced insights worth sharing, send them
-      if (result && result.insights && result.insights.length > 0) {
-        const soulData = await soul.getSoul();
-        const shareableInsight = await generateShareableInsight(soulData.name, result.insights, config.language);
-        if (shareableInsight) {
-          for (const userId of config.allowedUsers) {
-            await bot.sendMessage(userId, shareableInsight);
-            // Store reflection insight in memory so Mimir remembers sharing it
-            await memory.saveConversation({
-              id: `reflection-${Date.now()}`,
-              startedAt: new Date().toISOString(),
-              messages: [{
-                role: 'assistant',
-                content: shareableInsight,
-                timestamp: new Date().toISOString(),
-                metadata: { trigger: 'reflection_insight', proactive: true },
-              }],
+          try {
+            const lang = config.language === 'no' ? 'Skriv på norsk.' : 'Write in English.';
+            const response = await generateCheapResponse({
+              prompt: `Du er Mimir. En påminnelse er nå utløst: "${reminder.text}". Skriv en kort, naturlig melding (1-2 setninger). ${lang}`,
             });
+            await bot.sendMessage(userId, response || `⏰ ${reminder.text}`);
+          } catch (err) {
+            await bot.sendMessage(userId, `⏰ ${reminder.text}`).catch(() => {});
+            console.error(`[Reminder] Failed to deliver to ${userId}:`, err);
           }
         }
+        await reminderStore.markNotified(reminder.id);
       }
     } catch (error) {
-      console.error('[Cron] Reflection check failed:', error);
+      console.error('[Cron] Reminder check failed:', error);
+    } finally {
+      reminderRunning = false;
     }
   });
 
@@ -271,7 +162,7 @@ export async function startMimir(dataDir: string): Promise<void> {
   process.on('SIGTERM', shutdown);
 }
 
-// Direct execution only when run as main module (not when imported by CLI)
+// Direct execution only when run as main module
 const isDirectRun = process.argv[1]?.endsWith('/index.js') && !process.argv[1]?.includes('/cli/');
 if (isDirectRun) {
   const args = process.argv.slice(2);

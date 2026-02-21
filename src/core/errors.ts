@@ -1,51 +1,7 @@
 // ═══════════════════════════════════════════════════════════
-// MIMIR — Error Handling
-// Graceful failures — a raven must survive storms
+// MIMIR — Rate Limiter
+// Prevent runaway API costs
 // ═══════════════════════════════════════════════════════════
-
-/** Base error class for Mimir */
-export class MimirError extends Error {
-  constructor(
-    message: string,
-    public readonly code: string,
-    public readonly recoverable: boolean = true,
-  ) {
-    super(message);
-    this.name = 'MimirError';
-  }
-}
-
-/** Configuration errors */
-export class ConfigError extends MimirError {
-  constructor(message: string) {
-    super(message, 'CONFIG_ERROR', false);
-    this.name = 'ConfigError';
-  }
-}
-
-/** LLM API errors */
-export class LLMError extends MimirError {
-  constructor(message: string, public readonly statusCode?: number) {
-    super(message, 'LLM_ERROR', true);
-    this.name = 'LLMError';
-  }
-
-  get isRateLimit(): boolean {
-    return this.statusCode === 429;
-  }
-
-  get isAuthError(): boolean {
-    return this.statusCode === 401 || this.statusCode === 403;
-  }
-}
-
-/** Memory/storage errors */
-export class MemoryError extends MimirError {
-  constructor(message: string) {
-    super(message, 'MEMORY_ERROR', true);
-    this.name = 'MemoryError';
-  }
-}
 
 /** Rate limiter — prevent runaway API costs */
 export class RateLimiter {
@@ -118,43 +74,4 @@ export class RateLimiter {
       dailyCostUSD: Math.round(this.totalCost * 100) / 100,
     };
   }
-}
-
-/** Retry with exponential backoff */
-export async function retryWithBackoff<T>(
-  fn: () => Promise<T>,
-  options: {
-    maxRetries?: number;
-    baseDelayMs?: number;
-    maxDelayMs?: number;
-    onRetry?: (attempt: number, error: Error) => void;
-  } = {},
-): Promise<T> {
-  const maxRetries = options.maxRetries ?? 3;
-  const baseDelay = options.baseDelayMs ?? 1000;
-  const maxDelay = options.maxDelayMs ?? 30000;
-
-  let lastError: Error | undefined;
-
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      return await fn();
-    } catch (error) {
-      lastError = error instanceof Error ? error : new Error(String(error));
-
-      // Don't retry auth errors
-      if (error instanceof LLMError && error.isAuthError) {
-        throw error;
-      }
-
-      if (attempt < maxRetries) {
-        const delay = Math.min(baseDelay * Math.pow(2, attempt), maxDelay);
-        const jitter = delay * 0.1 * Math.random();
-        options.onRetry?.(attempt + 1, lastError);
-        await new Promise(resolve => setTimeout(resolve, delay + jitter));
-      }
-    }
-  }
-
-  throw lastError;
 }

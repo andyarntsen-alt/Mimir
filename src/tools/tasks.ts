@@ -7,15 +7,20 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { nanoid } from 'nanoid';
-import type { Tool, Goal } from '../core/types.js';
+import type { Tool } from '../core/types.js';
 
-/**
- * Task/Goal store — file-based, persistent.
- * Uses the Goal interface from core types.
- */
+interface Task {
+  id: string;
+  description: string;
+  priority: 'high' | 'medium' | 'low';
+  status: 'active' | 'completed';
+  createdAt: string;
+  completedAt?: string;
+}
+
 export class TaskStore {
   private filePath: string;
-  private tasks: Goal[] = [];
+  private tasks: Task[] = [];
 
   constructor(dataDir: string) {
     this.filePath = join(dataDir, 'tasks.json');
@@ -46,8 +51,8 @@ export class TaskStore {
     await writeFile(this.filePath, JSON.stringify(this.tasks, null, 2), 'utf-8');
   }
 
-  async add(description: string, priority: Goal['priority'] = 'medium'): Promise<Goal> {
-    const task: Goal = {
+  async add(description: string, priority: Task['priority'] = 'medium'): Promise<Task> {
+    const task: Task = {
       id: nanoid(),
       description,
       priority,
@@ -59,7 +64,7 @@ export class TaskStore {
     return task;
   }
 
-  async complete(idOrDescription: string): Promise<Goal | null> {
+  async complete(idOrDescription: string): Promise<Task | null> {
     const task = this.tasks.find(t =>
       t.id === idOrDescription ||
       t.description.toLowerCase().includes(idOrDescription.toLowerCase())
@@ -72,16 +77,16 @@ export class TaskStore {
     return task;
   }
 
-  async getActive(): Promise<Goal[]> {
+  async getActive(): Promise<Task[]> {
     return this.tasks
       .filter(t => t.status === 'active')
       .sort((a, b) => {
-        const priorityOrder = { high: 0, medium: 1, low: 2 };
+        const priorityOrder: Record<Task['priority'], number> = { high: 0, medium: 1, low: 2 };
         return priorityOrder[a.priority] - priorityOrder[b.priority];
       });
   }
 
-  async getAll(): Promise<Goal[]> {
+  async getAll(): Promise<Task[]> {
     return [...this.tasks];
   }
 }
@@ -98,7 +103,7 @@ export function createTaskTools(store: TaskStore): Tool[] {
       },
       execute: async (args) => {
         const description = args.description as string;
-        const priority = (args.priority as Goal['priority']) || 'medium';
+        const priority = (args.priority as Task['priority']) || 'medium';
         if (!description) return 'Need a task description.';
 
         const task = await store.add(description, priority);
@@ -128,7 +133,7 @@ export function createTaskTools(store: TaskStore): Tool[] {
         const tasks = await store.getActive();
         if (tasks.length === 0) return 'No active tasks. Nice!';
 
-        const priorityIcons = { high: '🔴', medium: '🟡', low: '🟢' };
+        const priorityIcons: Record<Task['priority'], string> = { high: '🔴', medium: '🟡', low: '🟢' };
         return tasks.map(t =>
           `${priorityIcons[t.priority]} ${t.description}`
         ).join('\n');

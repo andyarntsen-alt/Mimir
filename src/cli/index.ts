@@ -20,21 +20,19 @@ import { startChat } from './chat.js';
 const RAVEN_BANNER = `
 ${chalk.cyan('    ┌─────────────────────────────────────┐')}
 ${chalk.cyan('    │')}                                       ${chalk.cyan('│')}
-${chalk.cyan('    │')}    ${chalk.white.bold('🐦  M U N I N N')}                    ${chalk.cyan('│')}
+${chalk.cyan('    │')}    ${chalk.white.bold('🐦  M I M I R')}                      ${chalk.cyan('│')}
 ${chalk.cyan('    │')}    ${chalk.dim('Your AI that remembers everything')}   ${chalk.cyan('│')}
 ${chalk.cyan('    │')}                                       ${chalk.cyan('│')}
 ${chalk.cyan('    └─────────────────────────────────────┘')}
 `;
 
-const RAVEN_WELCOME_BACK = (name: string, phase: string, facts: number, interactions: number) => `
+const RAVEN_WELCOME_BACK = (facts: number) => `
 ${chalk.cyan('    ┌─────────────────────────────────────┐')}
 ${chalk.cyan('    │')}                                       ${chalk.cyan('│')}
-${chalk.cyan('    │')}    ${chalk.white.bold(`🐦  ${name.toUpperCase()}`)}${' '.repeat(Math.max(0, 32 - name.length))}${chalk.cyan('│')}
+${chalk.cyan('    │')}    ${chalk.white.bold('🐦  M I M I R')}                      ${chalk.cyan('│')}
 ${chalk.cyan('    │')}    ${chalk.dim('Your AI that remembers everything')}   ${chalk.cyan('│')}
 ${chalk.cyan('    │')}                                       ${chalk.cyan('│')}
-${chalk.cyan('    │')}    ${chalk.dim(`Fase: ${phase}`)}${' '.repeat(Math.max(0, 31 - phase.length - 6))}${chalk.cyan('│')}
 ${chalk.cyan('    │')}    ${chalk.dim(`Minner: ${facts} fakta`)}${' '.repeat(Math.max(0, 31 - String(facts).length - 14))}${chalk.cyan('│')}
-${chalk.cyan('    │')}    ${chalk.dim(`Samtaler: ${interactions}`)}${' '.repeat(Math.max(0, 31 - String(interactions).length - 10))}${chalk.cyan('│')}
 ${chalk.cyan('    │')}                                       ${chalk.cyan('│')}
 ${chalk.cyan('    └─────────────────────────────────────┘')}
 `;
@@ -47,27 +45,8 @@ function isConfigured(dataDir: string): boolean {
   return existsSync(join(dataDir, 'config.yaml'));
 }
 
-async function getSoulInfo(dataDir: string): Promise<{ name: string; phase: string; interactions: number } | null> {
-  try {
-    const soulPath = join(dataDir, 'SOUL.md');
-    if (!existsSync(soulPath)) return null;
-
-    const content = await readFile(soulPath, 'utf-8');
-
-    const nameMatch = content.match(/\*\*Name:\*\*\s*(.+)/);
-    const phaseMatch = content.match(/## Relationship Phase\s*\n(\w+)/);
-    const name = nameMatch ? nameMatch[1].trim() : 'Mimir';
-    const phase = phaseMatch ? phaseMatch[1].trim() : 'curious';
-
-    const countPath = join(dataDir, 'interaction-count');
-    const interactions = existsSync(countPath)
-      ? parseInt(await readFile(countPath, 'utf-8'), 10) || 0
-      : 0;
-
-    return { name, phase, interactions };
-  } catch {
-    return null;
-  }
+function hasSoul(dataDir: string): boolean {
+  return existsSync(join(dataDir, 'SOUL.md'));
 }
 
 async function getFactCount(dataDir: string): Promise<number> {
@@ -97,11 +76,10 @@ async function interactiveStart(): Promise<void> {
   }
 
   // ─── Returning user: show status + menu ─────────────
-  const soulInfo = await getSoulInfo(dataDir);
   const factCount = await getFactCount(dataDir);
 
-  if (soulInfo) {
-    console.log(RAVEN_WELCOME_BACK(soulInfo.name, soulInfo.phase, factCount, soulInfo.interactions));
+  if (hasSoul(dataDir)) {
+    console.log(RAVEN_WELCOME_BACK(factCount));
   } else {
     console.log(RAVEN_BANNER);
   }
@@ -150,18 +128,11 @@ async function interactiveStart(): Promise<void> {
 // ─── Status ─────────────────────────────────────────────
 
 async function showStatus(dataDir: string): Promise<void> {
-  const soulInfo = await getSoulInfo(dataDir);
   const factCount = await getFactCount(dataDir);
 
   console.log(chalk.cyan('\n  ─── Status ───────────────────────\n'));
 
-  if (soulInfo) {
-    console.log(`  ${chalk.white('Navn:')}        ${soulInfo.name}`);
-    console.log(`  ${chalk.white('Fase:')}        ${soulInfo.phase}`);
-    console.log(`  ${chalk.white('Minner:')}      ${factCount} fakta`);
-    console.log(`  ${chalk.white('Samtaler:')}    ${soulInfo.interactions}`);
-  }
-
+  console.log(`  ${chalk.white('Minner:')}      ${factCount} fakta`);
   console.log(`  ${chalk.white('Datamappe:')}   ${dataDir}`);
 
   // Show config info
