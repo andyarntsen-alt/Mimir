@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Error Handling & Rate Limiter Tests
+// MIMIR — Error Handling & Rate Limiter Tests
 // ═══════════════════════════════════════════════════════════
 
 import { describe, it } from 'node:test';

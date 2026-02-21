@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Filesystem Tools
+// MIMIR — Filesystem Tools
 // Read, write, list, search, move, delete — all gated by Policy Engine
 // ═══════════════════════════════════════════════════════════
 

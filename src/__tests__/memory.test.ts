@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Memory Engine Tests
+// MIMIR — Memory Engine Tests
 // ═══════════════════════════════════════════════════════════
 
 import { describe, it, beforeEach, afterEach } from 'node:test';
@@ -14,7 +14,7 @@ describe('MemoryEngine', () => {
   let memory: MemoryEngine;
 
   beforeEach(async () => {
-    dataDir = await mkdtemp(join(tmpdir(), 'muninn-test-'));
+    dataDir = await mkdtemp(join(tmpdir(), 'mimir-test-'));
     memory = new MemoryEngine(dataDir);
     await memory.initialize();
   });

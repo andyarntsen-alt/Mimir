@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Web Search Tool
+// MIMIR — Web Search Tool
 // Giving the raven eyes beyond its own memory
 // Uses Google search scraping + DuckDuckGo fallback
 // ═══════════════════════════════════════════════════════════

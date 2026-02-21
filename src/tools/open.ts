@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Open Tool
+// MIMIR — Open Tool
 // Open apps, files, and URLs on macOS using the `open` command
 // ═══════════════════════════════════════════════════════════
 

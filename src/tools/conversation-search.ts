@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Conversation Search Tool
+// MIMIR — Conversation Search Tool
 // "What did we talk about last week?"
 // ═══════════════════════════════════════════════════════════
 

@@ -1,10 +1,10 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Model Factory
+// MIMIR — Model Factory
 // Single source of truth for creating LLM model instances
 // Supports: direct API, Claude Max Proxy, custom base URLs
 // ═══════════════════════════════════════════════════════════
 
-import type { MuninnConfig } from './types.js';
+import type { MimirConfig } from './types.js';
 
 /**
  * Create an AI SDK model instance from config.
@@ -16,11 +16,11 @@ import type { MuninnConfig } from './types.js';
  *     authenticated via your Claude Max/Pro subscription)
  * 3. Custom endpoint — any OpenAI-compatible API with baseUrl
  *
- * @param config   MuninnConfig with provider, model, apiKey, baseUrl
+ * @param config   MimirConfig with provider, model, apiKey, baseUrl
  * @param modelOverride  Optional model name override (e.g., for cheap models)
  */
 export async function createModelInstance(
-  config: MuninnConfig,
+  config: MimirConfig,
   modelOverride?: string,
 ) {
   const modelName = modelOverride || config.model;
@@ -47,7 +47,7 @@ export async function createModelInstance(
  *
  * When using a proxy, we use the same endpoint but try a lighter model.
  */
-export async function createCheapModelInstance(config: MuninnConfig) {
+export async function createCheapModelInstance(config: MimirConfig) {
   if (config.baseUrl) {
     // Through proxy — use a lighter Claude model if available, otherwise same model
     return createModelInstance(config, 'claude-3-5-haiku-20241022');

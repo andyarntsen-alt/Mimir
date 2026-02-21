@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — LLM Helper
+// MIMIR — LLM Helper
 // Simple text generation via Claude Agent SDK
 // Replaces the old Vercel AI SDK generateText() + model-factory
 // ═══════════════════════════════════════════════════════════

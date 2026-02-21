@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Clipboard Tool
+// MIMIR — Clipboard Tool
 // Read and write the macOS clipboard (pbpaste / pbcopy)
 // ═══════════════════════════════════════════════════════════
 

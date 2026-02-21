@@ -1,9 +1,9 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — System Prompt Builder
+// MIMIR — System Prompt Builder
 // Assembles the system prompt from soul, memory, and goals
 // ═══════════════════════════════════════════════════════════
 
-import type { Soul, Fact, Entity, Goal, MuninnConfig } from './types.js';
+import type { Soul, Fact, Entity, Goal, MimirConfig } from './types.js';
 
 export interface SystemPromptContext {
   soul: Soul;
@@ -11,7 +11,7 @@ export interface SystemPromptContext {
   allFacts: Fact[];
   entities: Entity[];
   activeGoals: Goal[];
-  config: MuninnConfig;
+  config: MimirConfig;
 }
 
 // ─── Language-aware prompt strings ───────────────────────
@@ -48,6 +48,7 @@ const NO_STRINGS: PromptStrings = {
   bottomInstructions: (allowedDirs, language) => `REGLER:
 - Telegram. Naturlig, som en melding.
 - Du husker samtaler. Bruk det du vet.
+- Hvis du lærer noe nytt om brukeren, husk det til neste gang.
 - Aldri vis interne systemer.
 - Tillatte mapper: ${allowedDirs}.
 - Språkpreferanse: ${language}`,
@@ -71,6 +72,7 @@ const EN_STRINGS: PromptStrings = {
   bottomInstructions: (allowedDirs, language) => `RULES:
 - Telegram. Natural, like a message.
 - You remember conversations. Use what you know.
+- If you learn something new about the user, remember it for next time.
 - Never expose internal systems.
 - Allowed directories: ${allowedDirs}.
 - Language preference: ${language}`,

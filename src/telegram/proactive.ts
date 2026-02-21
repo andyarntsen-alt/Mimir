@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Proactive Messaging System
+// MIMIR — Proactive Messaging System
 // A raven that speaks first — because true partners don't
 // just wait to be asked
 // ═══════════════════════════════════════════════════════════
@@ -7,7 +7,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import type { MuninnConfig, RelationshipPhase } from '../core/types.js';
+import type { MimirConfig, RelationshipPhase } from '../core/types.js';
 import { generateCheapResponse } from '../core/llm.js';
 import type { MemoryEngine } from '../memory/memory-engine.js';
 import type { SoulManager } from '../identity/soul-manager.js';
@@ -26,31 +26,28 @@ export type ProactiveTrigger =
   | 'follow_up'
   | 'check_in'
   | 'insight'
-  | 'task_nudge';
+  | 'task_nudge'
+  | 'discovery';
 
 interface ProactiveState {
   lastGreeting: string | null;
   lastCheckIn: string | null;
   lastFollowUp: string | null;
+  lastDiscovery: string | null;
   suppressUntil: string | null;
 }
 
 /**
- * Proactive Messaging — Muninn reaches out first.
+ * Proactive Messaging — Mimir reaches out first.
  *
- * Only available in UNDERSTANDING and PROACTIVE phases.
- * In earlier phases, Muninn only responds when spoken to.
+ * Active from day one:
+ *   Morning greetings, check-ins after 48h silence,
+ *   task nudges, and insight messages connecting facts.
  *
- * Types of proactive messages:
- * 1. Morning greetings (with relevant context)
- * 2. Reminder notifications
- * 3. Follow-ups on things discussed
- * 4. Check-ins during quiet periods
- * 5. Insights from reflection
- * 6. Task nudges
+ * Use /quiet to suppress when you need space.
  */
 export class ProactiveEngine {
-  private config: MuninnConfig;
+  private config: MimirConfig;
   private memory: MemoryEngine;
   private soul: SoulManager;
   private reminderStore: ReminderStore;
@@ -59,7 +56,7 @@ export class ProactiveEngine {
   private statePath: string;
 
   constructor(
-    config: MuninnConfig,
+    config: MimirConfig,
     memory: MemoryEngine,
     soul: SoulManager,
     reminderStore: ReminderStore,
@@ -75,6 +72,7 @@ export class ProactiveEngine {
       lastGreeting: null,
       lastCheckIn: null,
       lastFollowUp: null,
+      lastDiscovery: null,
       suppressUntil: null,
     };
   }
@@ -92,10 +90,8 @@ export class ProactiveEngine {
 
   /** Check if proactive messaging is available for current phase */
   private async isAvailable(): Promise<boolean> {
-    const soul = await this.soul.getSoul();
-    const phase = soul.relationshipPhase;
-    // Only proactive in later phases
-    return phase === 'understanding' || phase === 'proactive';
+    // Always available — Mimir reaches out from day one
+    return true;
   }
 
   /** Check if messages are suppressed */
@@ -112,7 +108,7 @@ export class ProactiveEngine {
     const messages: ProactiveMessage[] = [];
     const now = new Date();
 
-    // 1. Morning greeting (once per day, between 7-10 AM)
+    // 1. Morning greeting (once per day, 7-10 AM)
     const hour = now.getHours();
     if (hour >= 7 && hour <= 10) {
       const today = now.toISOString().split('T')[0];
@@ -129,7 +125,7 @@ export class ProactiveEngine {
       }
     }
 
-    // 2. Task nudge (if there are high-priority tasks)
+    // 2. Task nudge (if high-priority tasks exist)
     const tasks = await this.taskStore.getActive();
     const highPriority = tasks.filter(t => t.priority === 'high');
     if (highPriority.length > 0) {
@@ -141,7 +137,7 @@ export class ProactiveEngine {
       if (hoursSinceNudge > 8) {
         const taskNames = highPriority.map(t => t.description).join(', ');
         messages.push({
-          text: `🔴 Reminder: you have ${highPriority.length} high-priority task${highPriority.length > 1 ? 's' : ''}: ${taskNames}`,
+          text: `Påminnelse: du har ${highPriority.length} viktig${highPriority.length > 1 ? 'e' : ''} oppgave${highPriority.length > 1 ? 'r' : ''}: ${taskNames}`,
           trigger: 'task_nudge',
           priority: 'medium',
         });
@@ -149,7 +145,8 @@ export class ProactiveEngine {
       }
     }
 
-    // 3. Check-in after silence (if no conversation for 48+ hours)
+    // 3. Check-in after silence (48h)
+    const silenceThreshold = 48;
     const recentConvos = await this.memory.getConversations(1);
     if (recentConvos.length > 0) {
       const lastConvo = recentConvos[0];
@@ -161,7 +158,7 @@ export class ProactiveEngine {
           : new Date(0);
         const hoursSinceCheckIn = (now.getTime() - lastCheckIn.getTime()) / (1000 * 60 * 60);
 
-        if (hoursSinceLastMsg > 48 && hoursSinceCheckIn > 48) {
+        if (hoursSinceLastMsg > silenceThreshold && hoursSinceCheckIn > silenceThreshold) {
           const checkIn = await this.generateCheckIn();
           if (checkIn) {
             messages.push({
@@ -173,6 +170,26 @@ export class ProactiveEngine {
           }
         }
       }
+    }
+
+    // 4. Insight message (share connections between facts)
+    const insight = await this.generateInsight();
+    if (insight) {
+      messages.push({
+        text: insight,
+        trigger: 'insight',
+        priority: 'low',
+      });
+    }
+
+    // 5. Discovery (search web for things related to user's interests)
+    const discovery = await this.generateDiscovery();
+    if (discovery) {
+      messages.push({
+        text: discovery,
+        trigger: 'discovery',
+        priority: 'low',
+      });
     }
 
     // Save state
@@ -207,13 +224,15 @@ export class ProactiveEngine {
         }
       }
 
+      const lang = this.config.language === 'no' ? 'Write in Norwegian.' : 'Write in English.';
       const text = await generateCheapResponse({
         prompt: `You are ${soul.name}. Generate a brief, warm morning greeting for your human.
 ${context.length > 0 ? `\nContext:\n${context.join('\n')}` : ''}
 
 Keep it to 1-2 sentences. Be natural, not performative. Reference something relevant if you can.
 Don't be generic — make it feel personal based on what you know.
-If there's nothing specific to reference, keep it very short.`,
+If there's nothing specific to reference, keep it very short.
+${lang}`,
       });
 
       return text || null;
@@ -228,15 +247,105 @@ If there's nothing specific to reference, keep it very short.`,
       const soul = await this.soul.getSoul();
       const summaries = await this.memory.getConversationSummaries(3);
 
+      const lang = this.config.language === 'no' ? 'Write in Norwegian.' : 'Write in English.';
       const text = await generateCheapResponse({
         prompt: `You are ${soul.name}. It's been a couple of days since you last talked to your human.
 ${summaries.length > 0 ? `\nRecent conversation topics: ${summaries.join('; ')}` : ''}
 
 Generate a brief, natural check-in. Don't be clingy. Just a quick touch-base.
-Keep it to 1 sentence. Be warm but not needy.`,
+Keep it to 1 sentence. Be warm but not needy.
+${lang}`,
       });
 
       return text || null;
+    } catch {
+      return null;
+    }
+  }
+
+  /** Generate an insight message by connecting facts */
+  private async generateInsight(): Promise<string | null> {
+    try {
+      const soul = await this.soul.getSoul();
+      const facts = await this.memory.getRecentFacts(30);
+      if (facts.length < 10) return null; // Need enough facts to find connections
+
+      // Only send insights occasionally (max once per 3 days)
+      const lastInsight = this.state.lastFollowUp
+        ? new Date(this.state.lastFollowUp)
+        : new Date(0);
+      const daysSinceInsight = (Date.now() - lastInsight.getTime()) / (1000 * 60 * 60 * 24);
+      if (daysSinceInsight < 3) return null;
+
+      const lang = this.config.language === 'no' ? 'Write in Norwegian.' : 'Write in English.';
+      const text = await generateCheapResponse({
+        prompt: `You are ${soul.name}. Look at these facts about your human and find an interesting connection, pattern, or observation that they might not have noticed themselves.
+
+Facts:
+${facts.map(f => `- ${f.subject} ${f.predicate} ${f.object}`).join('\n')}
+
+Rules:
+- Only share if you find a genuinely interesting connection
+- Keep it to 1-2 sentences
+- Be natural, not analytical
+- Frame it as a thought, not a report
+- If nothing interesting connects, respond with just "NONE"
+- ${lang}
+
+Example: "Jeg la merke til at du nevnte stress rundt deadlines forrige uke, og nå jobber du sent igjen. Alt bra?"
+Example: "Du snakker mye om prosjektet ditt i det siste. Virker som det betyr mye for deg."`,
+      });
+
+      if (!text || text.trim().toUpperCase() === 'NONE') return null;
+      return text;
+    } catch {
+      return null;
+    }
+  }
+
+  /** Search for interesting things related to user's interests */
+  private async generateDiscovery(): Promise<string | null> {
+    try {
+      // Only search occasionally (max once per 2 days)
+      const lastDiscovery = this.state.lastDiscovery
+        ? new Date(this.state.lastDiscovery)
+        : new Date(0);
+      const daysSince = (Date.now() - lastDiscovery.getTime()) / (1000 * 60 * 60 * 24);
+      if (daysSince < 2) return null;
+
+      // Get facts about user interests
+      const facts = await this.memory.getRecentFacts(30);
+      if (facts.length < 5) return null; // Need enough context
+
+      // Ask LLM to pick a search topic from known interests
+      const soul = await this.soul.getSoul();
+      const topicResponse = await generateCheapResponse({
+        prompt: `Based on these facts about your human, pick ONE specific topic to search for that they would genuinely find interesting. Pick something they care about, not something generic.
+
+Facts:
+${facts.map(f => `- ${f.subject} ${f.predicate} ${f.object}`).join('\n')}
+
+Respond with JUST the search query (3-6 words), nothing else. If no good topic exists, respond "NONE".`,
+      });
+
+      if (!topicResponse || topicResponse.trim().toUpperCase() === 'NONE') return null;
+      const searchTopic = topicResponse.trim();
+
+      // Use web search tool if available — for now generate a curated message
+      const text = await generateCheapResponse({
+        prompt: `You are ${soul.name}. You searched for "${searchTopic}" because you know your human is interested in this.
+
+Write a short message (1-3 sentences) sharing something interesting about this topic. Include a specific detail or angle they might not know. If you can reference a recent development, do that.
+
+Be natural, like a friend sharing something they found. Not a news report.
+Use Norwegian if the language preference is ${this.config.language}.
+
+Example: "Hei, jeg leste litt om [topic]. Visste du at [interesting thing]? Tenkte det var noe for deg."`,
+      });
+
+      if (!text) return null;
+      this.state.lastDiscovery = new Date().toISOString();
+      return text;
     } catch {
       return null;
     }

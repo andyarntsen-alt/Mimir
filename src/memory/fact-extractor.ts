@@ -1,10 +1,10 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Automatic Fact Extraction
+// MIMIR — Automatic Fact Extraction
 // The raven notices things you didn't explicitly tell it
 // Every conversation leaves traces — Leibniz's petites perceptions
 // ═══════════════════════════════════════════════════════════
 
-import type { MuninnConfig, Fact } from '../core/types.js';
+import type { MimirConfig, Fact } from '../core/types.js';
 import { generateCheapResponse } from '../core/llm.js';
 import type { MemoryEngine } from './memory-engine.js';
 
@@ -19,10 +19,10 @@ import type { MemoryEngine } from './memory-engine.js';
  * without trying to remember it.
  */
 export class FactExtractor {
-  private config: MuninnConfig;
+  private config: MimirConfig;
   private memory: MemoryEngine;
 
-  constructor(config: MuninnConfig, memory: MemoryEngine) {
+  constructor(config: MimirConfig, memory: MemoryEngine) {
     this.config = config;
     this.memory = memory;
   }
@@ -82,6 +82,7 @@ Examples of BAD facts (never extract these):
 - {"subject": "bot", "predicate": "sent", "object": "screenshot to telegram"} — bot behavior
 
 Return [] if no personal facts are present. Most messages won't have extractable facts — that's fine.
+Be conservative — fewer high-quality facts are better than many low-quality ones.
 
 Respond ONLY with the JSON array, no other text.`;
 
@@ -101,7 +102,7 @@ Respond ONLY with the JSON array, no other text.`;
 
     for (const fact of facts) {
       // Skip low-confidence facts
-      if (fact.confidence < 0.6) continue;
+      if (fact.confidence < 0.7) continue;
 
       // Check if we already know this
       const existing = await this.memory.searchFacts(
@@ -126,7 +127,7 @@ Respond ONLY with the JSON array, no other text.`;
 
     // Also extract entities from facts
     for (const fact of facts) {
-      if (fact.confidence < 0.6) continue;
+      if (fact.confidence < 0.7) continue;
 
       // The subject is likely an entity
       if (fact.subject && fact.subject !== 'user') {
@@ -166,7 +167,7 @@ Respond ONLY with the JSON array, no other text.`;
     const full = `${sub} ${pred} ${obj}`;
 
     // Reject facts where the subject is the assistant/bot/system metadata
-    if (/^(assistant|bot|muninn|ai|system|current time|user message|previous conversation|previous user message|telegram chat|landing page|landing\.html|relationship|conversation|write permission|claude code|muninn welcome message|user and assistant|landing page creation attempt|landing page file)$/i.test(sub)) return true;
+    if (/^(assistant|bot|mimir|ai|system|current time|user message|previous conversation|previous user message|telegram chat|landing page|landing\.html|relationship|conversation|write permission|claude code|mimir welcome message|user and assistant|landing page creation attempt|landing page file)$/i.test(sub)) return true;
 
     // Reject conversation metadata predicates
     if (pred.match(/^(said|sent|asked|responded|wrote|typed|messaged|greeted)\b/)) return true;

@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Relationship Progression Tests
+// MIMIR — Relationship Progression Tests
 // ═══════════════════════════════════════════════════════════
 
 import { describe, it, beforeEach, afterEach } from 'node:test';
@@ -18,7 +18,7 @@ describe('RelationshipManager', () => {
   let relationship: RelationshipManager;
 
   beforeEach(async () => {
-    dataDir = await mkdtemp(join(tmpdir(), 'muninn-rel-test-'));
+    dataDir = await mkdtemp(join(tmpdir(), 'mimir-rel-test-'));
     memory = new MemoryEngine(dataDir);
     await memory.initialize();
     soul = new SoulManager(dataDir);

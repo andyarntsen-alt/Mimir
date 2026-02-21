@@ -1,12 +1,12 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Task Engine
+// MIMIR — Task Engine
 // Autonomous task execution with plan-based approval.
-// User approves the plan once, Muninn works alone.
+// User approves the plan once, Mimir works alone.
 // ═══════════════════════════════════════════════════════════
 
 import { nanoid } from 'nanoid';
 import { generateResponse } from './llm.js';
-import type { MuninnConfig, PolicyConfig } from './types.js';
+import type { MimirConfig, PolicyConfig } from './types.js';
 import type { PolicyEngine } from './policy-engine.js';
 import type { ApprovalManager } from '../telegram/approval.js';
 
@@ -45,13 +45,13 @@ type ProgressCallback = (progress: TaskProgress) => Promise<void>;
 type ScreenshotCallback = (taskId: string) => Promise<string | null>;
 
 /**
- * The Task Engine — lets Muninn work autonomously on approved plans.
+ * The Task Engine — lets Mimir work autonomously on approved plans.
  *
  * Flow:
  * 1. User says "/task lag en portfolio-side"
- * 2. Muninn generates a plan (list of steps)
+ * 2. Mimir generates a plan (list of steps)
  * 3. User sees the plan and approves with ✅
- * 4. Muninn executes each step automatically (no per-step approval)
+ * 4. Mimir executes each step automatically (no per-step approval)
  * 5. Reports progress and takes screenshots along the way
  * 6. Sends final result when done
  *
@@ -60,7 +60,7 @@ type ScreenshotCallback = (taskId: string) => Promise<string | null>;
  * Anything outside scope still requires manual approval.
  */
 export class TaskEngine {
-  private config: MuninnConfig;
+  private config: MimirConfig;
   private policy: PolicyEngine;
   private approval: ApprovalManager;
   private currentTask: TaskPlan | null = null;
@@ -71,7 +71,7 @@ export class TaskEngine {
   private toolExecutors: Map<string, (args: Record<string, unknown>) => Promise<string>> = new Map();
 
   constructor(
-    config: MuninnConfig,
+    config: MimirConfig,
     policy: PolicyEngine,
     approval: ApprovalManager,
   ) {
@@ -106,7 +106,7 @@ export class TaskEngine {
 
     const text = await generateResponse({
       model: this.config.model || 'sonnet',
-      system: `Du er Muninn, en AI-agent som planlegger oppgaver. Du skal lage en konkret, steg-for-steg plan.
+      system: `Du er Mimir, en AI-agent som planlegger oppgaver. Du skal lage en konkret, steg-for-steg plan.
 
 Tilgjengelige verktøy:
 - read_file: Les en fil (args: path)

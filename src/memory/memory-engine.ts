@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Memory Engine
-// The temporal knowledge graph that makes Muninn remember
+// MIMIR — Memory Engine
+// The temporal knowledge graph that makes Mimir remember
 // Inspired by Leibniz's petites perceptions:
 // every experience leaves a trace, even if imperceptible
 // ═══════════════════════════════════════════════════════════
@@ -21,7 +21,7 @@ export interface AddFactInput {
 }
 
 /**
- * The Muninn Memory Engine — file-based temporal knowledge graph.
+ * The Mimir Memory Engine — file-based temporal knowledge graph.
  *
  * Design principles:
  * 1. Everything is a file — git-friendly, inspectable, portable
@@ -60,7 +60,7 @@ export class MemoryEngine {
     // Load entities
     await this.loadEntities();
 
-    console.log(`[Muninn Memory] Loaded ${this.facts.length} facts, ${this.entities.size} entities`);
+    console.log(`[Mimir Memory] Loaded ${this.facts.length} facts, ${this.entities.size} entities`);
   }
 
   // ─── Fact Operations ───────────────────────────────────
@@ -89,7 +89,7 @@ export class MemoryEngine {
 
     for (const old of contradictions) {
       old.invalidAt = new Date().toISOString();
-      console.log(`[Muninn Memory] Invalidated: ${old.subject} ${old.predicate} ${old.object}`);
+      console.log(`[Mimir Memory] Invalidated: ${old.subject} ${old.predicate} ${old.object}`);
     }
 
     this.facts.push(fact);
@@ -117,7 +117,7 @@ export class MemoryEngine {
 
     if (count > 0) {
       await this.persistFacts();
-      console.log(`[Muninn Memory] Invalidated ${count} facts matching "${query}"`);
+      console.log(`[Mimir Memory] Invalidated ${count} facts matching "${query}"`);
     }
 
     return count;
@@ -190,7 +190,7 @@ export class MemoryEngine {
     const purged = before - this.facts.length;
     if (purged > 0) {
       await this.persistFacts();
-      console.log(`[Muninn Memory] Purged ${purged} junk facts (${this.facts.length} remaining)`);
+      console.log(`[Mimir Memory] Purged ${purged} junk facts (${this.facts.length} remaining)`);
     }
 
     return purged;

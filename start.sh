@@ -1,13 +1,13 @@
 #!/bin/bash
 # ═══════════════════════════════════════════════════════════
-# MUNINN — Start Script
-# Starts Muninn with the local data directory
+# MIMIR — Start Script
+# Starts Mimir with the local data directory
 # ═══════════════════════════════════════════════════════════
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 DATA_DIR="${SCRIPT_DIR}/data"
 
-echo "🐦 Starting Muninn..."
+echo "🐦 Starting Mimir..."
 echo "   Data: ${DATA_DIR}"
 echo ""
 

@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Goals Manager
+// MIMIR — Goals Manager
 // The agent's aspirations: what it wants to achieve
 // Goals evolve through reflection, just like the soul
 // ═══════════════════════════════════════════════════════════
@@ -23,7 +23,7 @@ Mål oppdateres under refleksjon.
 `;
 
 /**
- * The Goals Manager — tracks what Muninn wants to achieve.
+ * The Goals Manager — tracks what Mimir wants to achieve.
  *
  * Goals are the agent's own aspirations, developed through
  * reflection. They drive the relationship forward in phases,

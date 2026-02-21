@@ -1,13 +1,13 @@
 #!/bin/bash
 # ═══════════════════════════════════════════════════════════
-# MUNINN — Quick Test Drive
+# MIMIR — Quick Test Drive
 # Test the concept using Claude CLI directly (no API key needed)
 # Uses your Claude Max subscription via the claude command
 # ═══════════════════════════════════════════════════════════
 
 set -e
 
-DATA_DIR="${HOME}/.muninn-test"
+DATA_DIR="${HOME}/.mimir-test"
 SOUL_FILE="${DATA_DIR}/SOUL.md"
 FACTS_FILE="${DATA_DIR}/facts.jsonl"
 CONVO_LOG="${DATA_DIR}/conversation.log"
@@ -34,7 +34,7 @@ if [ ! -f "${SOUL_FILE}" ]; then
 # SOUL.md — Who I Am
 
 ## Identity
-- **Name:** Muninn
+- **Name:** Mimir
 - **Role:** Your personal AI companion — I remember everything so you don't have to.
 - **Version:** 1
 
@@ -81,7 +81,7 @@ echo -e "${DIM}  Data dir: ${DATA_DIR}${NC}"
 echo -e "${DIM}  Facts remembered: ${FACT_COUNT}${NC}"
 echo -e "${DIM}  Using: claude CLI (your Max subscription)${NC}"
 echo ""
-echo -e "${BOLD}  Talk to Muninn. Type 'quit' to exit.${NC}"
+echo -e "${BOLD}  Talk to Mimir. Type 'quit' to exit.${NC}"
 echo -e "${DIM}  Commands: /remember, /forget, /soul, /facts, /quit${NC}"
 echo ""
 
@@ -106,7 +106,7 @@ while true; do
   # Handle commands
   case "${USER_INPUT}" in
     /quit|quit|exit)
-      echo -e "\n${CYAN}🐦 Muninn has landed. See you next time.${NC}"
+      echo -e "\n${CYAN}🐦 Mimir has landed. See you next time.${NC}"
       break
       ;;
     /soul)
@@ -148,7 +148,7 @@ while true; do
   SOUL_CTX=$(cat "${SOUL_FILE}")
 
   # Build the prompt for Claude CLI
-  SYSTEM_PROMPT="You are Muninn, a personal AI agent. Here is your soul definition:
+  SYSTEM_PROMPT="You are Mimir, a personal AI agent. Here is your soul definition:
 
 ${SOUL_CTX}
 
@@ -187,5 +187,5 @@ IMPORTANT RULES:
   echo ""
 
   # Log response
-  echo "[$(date -Iseconds)] MUNINN: ${CLEAN_RESPONSE}" >> "${CONVO_LOG}"
+  echo "[$(date -Iseconds)] MIMIR: ${CLEAN_RESPONSE}" >> "${CONVO_LOG}"
 done

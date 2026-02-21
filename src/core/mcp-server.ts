@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — MCP Server Builder
-// Registers all Muninn tools as MCP tools for the Agent SDK
+// MIMIR — MCP Server Builder
+// Registers all Mimir tools as MCP tools for the Agent SDK
 // ═══════════════════════════════════════════════════════════
 
 import { tool as sdkTool, createSdkMcpServer } from '@anthropic-ai/claude-agent-sdk';
@@ -9,7 +9,7 @@ import { z } from 'zod';
 import type { Tool } from './types.js';
 import type { MemoryEngine } from '../memory/memory-engine.js';
 
-/** Build an in-process MCP server with all Muninn tools */
+/** Build an in-process MCP server with all Mimir tools */
 export function buildMcpServer(memory: MemoryEngine, tools: Tool[]) {
   const mcpTools = [];
 
@@ -89,7 +89,7 @@ export function buildMcpServer(memory: MemoryEngine, tools: Tool[]) {
   console.log(`[Huginn] Registered ${mcpTools.length} MCP tools`);
 
   return createSdkMcpServer({
-    name: 'muninn-tools',
+    name: 'mimir-tools',
     version: '1.0.0',
     tools: mcpTools,
   });
@@ -98,9 +98,9 @@ export function buildMcpServer(memory: MemoryEngine, tools: Tool[]) {
 /** Build the list of allowed tool names for the Agent SDK */
 export function getAllowedTools(tools: Tool[]): string[] {
   return [
-    'mcp__muninn-tools__remember_fact',
-    'mcp__muninn-tools__recall_facts',
-    ...tools.map(t => `mcp__muninn-tools__${t.name}`),
+    'mcp__mimir-tools__remember_fact',
+    'mcp__mimir-tools__recall_facts',
+    ...tools.map(t => `mcp__mimir-tools__${t.name}`),
   ];
 }
 

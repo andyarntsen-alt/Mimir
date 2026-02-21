@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Plugin System
+// MIMIR — Plugin System
 // Extend the raven's abilities — the WordPress model for AI
 // ═══════════════════════════════════════════════════════════
 
@@ -28,7 +28,7 @@ export interface PluginToolDef {
  * Plugin Loader — discovers and loads tools from the plugins directory.
  *
  * Plugin structure:
- * ~/.muninn/plugins/
+ * ~/.mimir/plugins/
  *   my-plugin/
  *     manifest.json    — Plugin definition
  *     index.js         — Main script (optional, for JS plugins)
@@ -147,7 +147,7 @@ export class PluginLoader {
         LANG: process.env.LANG || 'en_US.UTF-8',
         NODE_ENV: process.env.NODE_ENV || 'production',
         TERM: process.env.TERM || 'dumb',
-        MUNINN_ARGS: JSON.stringify(args),
+        MIMIR_ARGS: JSON.stringify(args),
       };
 
       const { stdout, stderr } = await exec(cmd, cmdArgs, {

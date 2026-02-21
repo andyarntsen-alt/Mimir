@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Browser Tools
+// MIMIR — Browser Tools
 // Fetch web pages, search the web, download files
 // Simple and safe — no full browser control (intentionally)
 // ═══════════════════════════════════════════════════════════
@@ -47,7 +47,7 @@ export function createBrowserTools(
           const response = await fetch(url, {
             signal: controller.signal,
             headers: {
-              'User-Agent': 'Muninn/1.0 (Personal AI Agent)',
+              'User-Agent': 'Mimir/1.0 (Personal AI Agent)',
               'Accept': 'text/html,application/xhtml+xml,text/plain,application/json',
             },
           });
@@ -113,7 +113,7 @@ export function createBrowserTools(
           const response = await fetch(url, {
             signal: controller.signal,
             headers: {
-              'User-Agent': 'Muninn/1.0 (Personal AI Agent)',
+              'User-Agent': 'Mimir/1.0 (Personal AI Agent)',
             },
           });
 
@@ -173,7 +173,7 @@ export function createBrowserTools(
 
           const response = await fetch(url, {
             signal: controller.signal,
-            headers: { 'User-Agent': 'Muninn/1.0' },
+            headers: { 'User-Agent': 'Mimir/1.0' },
           });
 
           clearTimeout(timeout);

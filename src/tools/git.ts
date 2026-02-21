@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Git Integration Tools
+// MIMIR — Git Integration Tools
 // Version control at the raven's command
 // ═══════════════════════════════════════════════════════════
 

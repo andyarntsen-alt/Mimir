@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Core Types
+// MIMIR — Core Types
 // The type system that defines what a personal AI agent IS
 // ═══════════════════════════════════════════════════════════
 
@@ -88,7 +88,7 @@ export interface Goal {
 }
 
 /** Configuration for the agent */
-export interface MuninnConfig {
+export interface MimirConfig {
   /** LLM provider: 'anthropic' | 'openai' | 'google' | 'ollama' */
   provider: string;
   /** Model name */
@@ -167,7 +167,7 @@ export interface AuditEntry {
 
 /** Policy configuration */
 export interface PolicyConfig {
-  /** Directories Muninn is allowed to access */
+  /** Directories Mimir is allowed to access */
   allowed_dirs: string[];
   /** Shell commands that are always blocked */
   blocked_commands: string[];

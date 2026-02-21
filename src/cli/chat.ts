@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — CLI Chat Mode
+// MIMIR — CLI Chat Mode
 // Test the raven without Telegram — pure terminal conversation
 // ═══════════════════════════════════════════════════════════
 
@@ -9,7 +9,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import chalk from 'chalk';
 import YAML from 'yaml';
-import type { MuninnConfig } from '../core/types.js';
+import type { MimirConfig } from '../core/types.js';
 import { HuginnRuntime } from '../core/runtime.js';
 import { MemoryEngine } from '../memory/memory-engine.js';
 import { SoulManager } from '../identity/soul-manager.js';
@@ -18,7 +18,7 @@ import { Reflector } from '../reflection/reflector.js';
 import { initializeTools } from '../tools/index.js';
 
 /**
- * CLI Chat — a REPL for talking to Muninn in the terminal.
+ * CLI Chat — a REPL for talking to Mimir in the terminal.
  *
  * No Telegram needed. Perfect for:
  * - Testing the runtime
@@ -36,12 +36,12 @@ export async function startChat(dataDir: string): Promise<void> {
   // ─── Load config ─────────────────────────────────────────
   const configPath = join(dataDir, 'config.yaml');
   if (!existsSync(configPath)) {
-    console.error(chalk.red('❌ No config found. Run: muninn init'));
+    console.error(chalk.red('❌ No config found. Run: mimir init'));
     process.exit(1);
   }
 
   const configContent = await readFile(configPath, 'utf-8');
-  const config: MuninnConfig = YAML.parse(configContent);
+  const config: MimirConfig = YAML.parse(configContent);
 
   // Resolve env: references
   if (config.apiKey.startsWith('env:')) {
@@ -140,7 +140,7 @@ export async function startChat(dataDir: string): Promise<void> {
   });
 
   rl.on('close', async () => {
-    console.log(chalk.dim('\n  🐦 Muninn is landing. Goodbye.\n'));
+    console.log(chalk.dim('\n  🐦 Mimir is landing. Goodbye.\n'));
     await runtime.endConversation();
     process.exit(0);
   });
@@ -225,7 +225,7 @@ async function handleCommand(
 
     case '/quit':
     case '/exit': {
-      console.log(chalk.dim('\n  🐦 Muninn is landing. Goodbye.\n'));
+      console.log(chalk.dim('\n  🐦 Mimir is landing. Goodbye.\n'));
       await runtime.endConversation();
       process.exit(0);
     }

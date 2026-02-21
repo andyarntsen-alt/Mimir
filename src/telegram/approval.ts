@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Telegram Approval System
+// MIMIR — Telegram Approval System
 // Human-in-the-loop for risky operations.
 // Supports: inline keyboard buttons OR text replies (ja/nei)
 // ═══════════════════════════════════════════════════════════
@@ -20,7 +20,7 @@ const NO_WORDS = ['nei', 'no', 'nope', 'stopp', 'avvis', 'ikke', 'nei takk', 'n'
 /**
  * The Approval Manager — handles Telegram approval flows.
  *
- * When Muninn wants to do something risky (write a file, run a shell command),
+ * When Mimir wants to do something risky (write a file, run a shell command),
  * this asks the user for confirmation. Two ways to respond:
  * 1. Tap the inline keyboard buttons (✅ / ❌)
  * 2. Just type "ja" or "nei" as a regular message
@@ -127,7 +127,7 @@ export class ApprovalManager {
 
       const message =
         `${riskEmoji} *${riskLabel}*\n\n` +
-        `Muninn vil gjøre:\n` +
+        `Mimir vil gjøre:\n` +
         `\`${description}\`\n\n` +
         `Verktøy: \`${tool}\`\n\n` +
         `Svar *ja* / *nei* eller bruk knappene:`;

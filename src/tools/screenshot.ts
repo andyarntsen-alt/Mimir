@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Screenshot Tool
+// MIMIR — Screenshot Tool
 // Takes screenshots on macOS and sends them via Telegram
 // Uses native `screencapture` command
 // ═══════════════════════════════════════════════════════════

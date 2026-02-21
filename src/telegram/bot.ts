@@ -1,12 +1,12 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Telegram Bot Interface
+// MIMIR — Telegram Bot Interface
 // Where the raven meets the human
 // The primary interface: a conversation, nothing more
 // ═══════════════════════════════════════════════════════════
 
 import { Bot, Context, session, InputFile } from 'grammy';
 import { existsSync } from 'node:fs';
-import type { MuninnConfig } from '../core/types.js';
+import type { MimirConfig } from '../core/types.js';
 import type { HuginnRuntime } from '../core/runtime.js';
 import type { Reflector } from '../reflection/reflector.js';
 import type { SoulManager } from '../identity/soul-manager.js';
@@ -20,20 +20,20 @@ interface SessionData {
 }
 
 /**
- * The Telegram Bot — Muninn's voice in the world.
+ * The Telegram Bot — Mimir's voice in the world.
  *
  * Design philosophy: the interface should disappear.
  * No menus, no buttons (except a few commands).
  * Just talk to your raven.
  */
-export class MuninnBot {
+export class MimirBot {
   private bot: Bot<Context & { session: SessionData }>;
   private runtime: HuginnRuntime;
   private reflector: Reflector;
   private soul: SoulManager;
   private memory: MemoryEngine;
   private goals: GoalsManager;
-  private config: MuninnConfig;
+  private config: MimirConfig;
   private proactive: ProactiveEngine | null = null;
   private approval: ApprovalManager | null = null;
   private conversationTimeouts: Map<number, NodeJS.Timeout> = new Map();
@@ -42,7 +42,7 @@ export class MuninnBot {
   private static CONVERSATION_TIMEOUT = 30 * 60 * 1000;
 
   constructor(
-    config: MuninnConfig,
+    config: MimirConfig,
     runtime: HuginnRuntime,
     reflector: Reflector,
     soul: SoulManager,
@@ -177,7 +177,7 @@ export class MuninnBot {
       await ctx.reply(response, { parse_mode: 'Markdown' });
     });
 
-    // /remember — Show what Muninn remembers
+    // /remember — Show what Mimir remembers
     this.bot.command('remember', async (ctx) => {
       const facts = await this.memory.getRecentFacts(20);
       if (facts.length === 0) {
@@ -284,7 +284,7 @@ export class MuninnBot {
 
       const evolution = await this.soul.loadEvolution();
 
-      let stats = `📊 *Muninn Statistics*\n\n`;
+      let stats = `📊 *Mimir Statistics*\n\n`;
       stats += `*Identity:* ${currentSoul.name} v${currentSoul.version}\n`;
       stats += `*Phase:* ${currentSoul.relationshipPhase}\n`;
       stats += `*Evolutions:* ${evolution.length}\n\n`;
@@ -374,7 +374,7 @@ export class MuninnBot {
       // Send as a document using grammY InputFile
       const buffer = Buffer.from(json, 'utf-8');
       await ctx.replyWithDocument(
-        new InputFile(buffer, `muninn-export-${new Date().toISOString().split('T')[0]}.json`)
+        new InputFile(buffer, `mimir-export-${new Date().toISOString().split('T')[0]}.json`)
       );
 
       await ctx.reply(
@@ -612,7 +612,7 @@ export class MuninnBot {
     const timeout = setTimeout(async () => {
       await this.runtime.endConversation();
       this.conversationTimeouts.delete(userId);
-    }, MuninnBot.CONVERSATION_TIMEOUT);
+    }, MimirBot.CONVERSATION_TIMEOUT);
 
     this.conversationTimeouts.set(userId, timeout);
   }
@@ -637,8 +637,8 @@ export class MuninnBot {
         console.error('   1. Åpne Telegram og send melding til @BotFather');
         console.error('   2. Send /mybots og velg boten din');
         console.error('   3. Velg "API Token" for å se eller generere nytt token');
-        console.error('   4. Oppdater tokenet i ~/.muninn/config.yaml');
-        console.error('   5. Kjør muninn start på nytt\n');
+        console.error('   4. Oppdater tokenet i ~/.mimir/config.yaml');
+        console.error('   5. Kjør mimir start på nytt\n');
       } else {
         console.error(`\n❌ Kunne ikke koble til Telegram: ${error?.message || error}`);
         console.error('   Sjekk internettforbindelsen og prøv igjen.\n');
@@ -649,7 +649,7 @@ export class MuninnBot {
     // Set bot commands for Telegram UI
     try {
       await this.bot.api.setMyCommands([
-        { command: 'start', description: 'Start talking to Muninn' },
+        { command: 'start', description: 'Start talking to Mimir' },
         { command: 'status', description: 'See our relationship status' },
         { command: 'stats', description: 'Analytics and statistics' },
         { command: 'soul', description: 'See my identity' },
@@ -668,7 +668,7 @@ export class MuninnBot {
 
     this.bot.start({
       onStart: () => {
-        console.log('[Bot] 🐦 Muninn is online and listening.');
+        console.log('[Bot] 🐦 Mimir is online and listening.');
       },
     });
   }
@@ -694,6 +694,6 @@ export class MuninnBot {
     this.conversationTimeouts.clear();
 
     this.bot.stop();
-    console.log('[Bot] 🐦 Muninn has landed.');
+    console.log('[Bot] 🐦 Mimir has landed.');
   }
 }

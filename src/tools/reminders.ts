@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Reminders Tool
+// MIMIR — Reminders Tool
 // A raven that remembers and nudges at the right time
 // ═══════════════════════════════════════════════════════════
 

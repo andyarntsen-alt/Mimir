@@ -1,9 +1,9 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Tools Registry
+// MIMIR — Tools Registry
 // All the tools the raven can use
 // ═══════════════════════════════════════════════════════════
 
-import type { Tool, MuninnConfig } from '../core/types.js';
+import type { Tool, MimirConfig } from '../core/types.js';
 import type { MemoryEngine } from '../memory/memory-engine.js';
 import type { PolicyEngine } from '../core/policy-engine.js';
 import type { ApprovalManager } from '../telegram/approval.js';
@@ -31,7 +31,7 @@ export { PluginLoader } from './plugin-loader.js';
  */
 export async function initializeTools(
   dataDir: string,
-  config?: MuninnConfig,
+  config?: MimirConfig,
   memory?: MemoryEngine,
   policy?: PolicyEngine,
   approval?: ApprovalManager,

@@ -1,22 +1,22 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Error Handling
+// MIMIR — Error Handling
 // Graceful failures — a raven must survive storms
 // ═══════════════════════════════════════════════════════════
 
-/** Base error class for Muninn */
-export class MuninnError extends Error {
+/** Base error class for Mimir */
+export class MimirError extends Error {
   constructor(
     message: string,
     public readonly code: string,
     public readonly recoverable: boolean = true,
   ) {
     super(message);
-    this.name = 'MuninnError';
+    this.name = 'MimirError';
   }
 }
 
 /** Configuration errors */
-export class ConfigError extends MuninnError {
+export class ConfigError extends MimirError {
   constructor(message: string) {
     super(message, 'CONFIG_ERROR', false);
     this.name = 'ConfigError';
@@ -24,7 +24,7 @@ export class ConfigError extends MuninnError {
 }
 
 /** LLM API errors */
-export class LLMError extends MuninnError {
+export class LLMError extends MimirError {
   constructor(message: string, public readonly statusCode?: number) {
     super(message, 'LLM_ERROR', true);
     this.name = 'LLMError';
@@ -40,7 +40,7 @@ export class LLMError extends MuninnError {
 }
 
 /** Memory/storage errors */
-export class MemoryError extends MuninnError {
+export class MemoryError extends MimirError {
   constructor(message: string) {
     super(message, 'MEMORY_ERROR', true);
     this.name = 'MemoryError';

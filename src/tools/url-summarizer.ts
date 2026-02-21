@@ -1,16 +1,16 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — URL Summarizer Tool
+// MIMIR — URL Summarizer Tool
 // Read and summarize web pages for the user
 // ═══════════════════════════════════════════════════════════
 
-import type { Tool, MuninnConfig } from '../core/types.js';
+import type { Tool, MimirConfig } from '../core/types.js';
 import { generateCheapResponse } from '../core/llm.js';
 
 /**
  * URL Summarizer — fetches a web page and summarizes its content.
  * Uses a lightweight approach: fetch HTML, strip tags, summarize.
  */
-export function createUrlSummarizerTool(config: MuninnConfig): Tool {
+export function createUrlSummarizerTool(config: MimirConfig): Tool {
   return {
     name: 'summarize_url',
     description: 'Fetch and summarize a web page. Use when the user shares a URL and wants to know what it says.',
@@ -27,7 +27,7 @@ export function createUrlSummarizerTool(config: MuninnConfig): Tool {
 
         const response = await fetch(url, {
           headers: {
-            'User-Agent': 'Muninn/1.0 (personal AI assistant)',
+            'User-Agent': 'Mimir/1.0 (personal AI assistant)',
             'Accept': 'text/html,text/plain',
           },
           signal: AbortSignal.timeout(10000), // 10s timeout

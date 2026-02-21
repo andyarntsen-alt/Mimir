@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Relationship Progression System
+// MIMIR — Relationship Progression System
 // How trust is built: not by time alone, but by depth
 // Inspired by James's stream of consciousness:
 // relationship is a continuous flow, not discrete steps
@@ -65,7 +65,7 @@ const PHASE_ORDER: RelationshipPhase[] = [
  * The Relationship Manager — evaluates and manages phase transitions.
  *
  * Unlike most AI systems where the relationship is static,
- * Muninn's relationship with the user evolves organically.
+ * Mimir's relationship with the user evolves organically.
  * This isn't a gamification system — it's a genuine attempt
  * to model how trust builds between minds.
  */

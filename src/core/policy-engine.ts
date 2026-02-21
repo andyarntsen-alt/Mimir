@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Policy Engine
+// MIMIR — Policy Engine
 // Deterministic security layer. No LLM can talk its way past this.
 // Deny-by-default. Append-only audit. Telegram approval for risky ops.
 // ═══════════════════════════════════════════════════════════
@@ -11,7 +11,7 @@ import { homedir } from 'node:os';
 import type { PolicyConfig, PolicyDecision, RiskLevel, AuditEntry } from './types.js';
 
 /**
- * The Policy Engine — Muninn's security boundary.
+ * The Policy Engine — Mimir's security boundary.
  *
  * This is 100% deterministic. No LLM calls, no prompt injection surface.
  * It sits between the LLM brain (Huginn) and the tools (filesystem, shell, browser).
@@ -415,7 +415,7 @@ export class PolicyEngine {
 
   /** Check if a path is within any of the allowed directories */
   private isInAllowedDir(absPath: string): boolean {
-    // Data dir is always allowed (Muninn's own data)
+    // Data dir is always allowed (Mimir's own data)
     const resolvedDataDir = resolve(normalize(this.dataDir));
     if (absPath.startsWith(resolvedDataDir)) return true;
 

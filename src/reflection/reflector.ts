@@ -1,11 +1,11 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Reflection System
+// MIMIR — Reflection System
 // The self-awareness loop: "What have I learned? How should I change?"
 // Inspired by Leibniz's apperception — not just perceiving,
 // but perceiving that you perceive
 // ═══════════════════════════════════════════════════════════
 
-import type { MuninnConfig, ReflectionResult, Fact, RelationshipPhase, Soul } from '../core/types.js';
+import type { MimirConfig, ReflectionResult, Fact, RelationshipPhase, Soul } from '../core/types.js';
 import { generateResponse } from '../core/llm.js';
 import type { MemoryEngine } from '../memory/memory-engine.js';
 import type { SoulManager } from '../identity/soul-manager.js';
@@ -15,7 +15,7 @@ import { RelationshipManager } from '../identity/relationship.js';
 /**
  * The Reflector — periodic self-examination system.
  *
- * At regular intervals, Muninn pauses to:
+ * At regular intervals, Mimir pauses to:
  * 1. Review recent conversations and facts
  * 2. Identify patterns and insights
  * 3. Consider whether its personality should evolve
@@ -26,13 +26,13 @@ import { RelationshipManager } from '../identity/relationship.js';
  * we can currently build.
  */
 export class Reflector {
-  private config: MuninnConfig;
+  private config: MimirConfig;
   private memory: MemoryEngine;
   private soul: SoulManager;
   private goals: GoalsManager;
   private relationship: RelationshipManager;
 
-  constructor(config: MuninnConfig, memory: MemoryEngine, soul: SoulManager, goals: GoalsManager) {
+  constructor(config: MimirConfig, memory: MemoryEngine, soul: SoulManager, goals: GoalsManager) {
     this.config = config;
     this.memory = memory;
     this.soul = soul;
@@ -154,7 +154,7 @@ export class Reflector {
       ? activeGoals.map(g => `- [${g.id}] ${g.description}`).join('\n')
       : 'No active goals.';
 
-    return `You are Muninn, an AI agent reflecting on your recent experiences. Your current soul definition:
+    return `You are Mimir, an AI agent reflecting on your recent experiences. Your current soul definition:
 
 ---
 ${soul.raw}

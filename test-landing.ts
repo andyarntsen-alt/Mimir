@@ -1,11 +1,11 @@
-// Quick test: ask Muninn to create a landing page via processMessage
+// Quick test: ask Mimir to create a landing page via processMessage
 // Bypasses Telegram, auto-approves all tool calls
 
 import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import YAML from 'yaml';
-import type { MuninnConfig, PolicyConfig, RiskLevel } from './src/core/types.js';
+import type { MimirConfig, PolicyConfig, RiskLevel } from './src/core/types.js';
 import { HuginnRuntime } from './src/core/runtime.js';
 import { MemoryEngine } from './src/memory/memory-engine.js';
 import { SoulManager } from './src/identity/soul-manager.js';
@@ -35,7 +35,7 @@ const dataDir = join(import.meta.dirname, 'data');
 
 async function main() {
   const configContent = await readFile(join(dataDir, 'config.yaml'), 'utf-8');
-  const config: MuninnConfig = YAML.parse(configContent);
+  const config: MimirConfig = YAML.parse(configContent);
 
   if (config.apiKey.startsWith('env:')) {
     config.apiKey = process.env[config.apiKey.replace('env:', '')] || '';
@@ -77,17 +77,17 @@ async function main() {
     tools,
   });
 
-  console.log('\n--- Sending message to Muninn ---\n');
+  console.log('\n--- Sending message to Mimir ---\n');
 
   const response = await runtime.processMessage(
-    'Skriv en enkel HTML-fil til ~/Desktop/muninn-landing/index.html. Bare en <h1>Muninn</h1> i en mørk side. Bruk write_file direkte.',
+    'Skriv en enkel HTML-fil til ~/Desktop/mimir-landing/index.html. Bare en <h1>Mimir</h1> i en mørk side. Bruk write_file direkte.',
     'test-user',
   );
 
-  console.log('\n--- Muninn response ---\n');
+  console.log('\n--- Mimir response ---\n');
   console.log(response);
 
-  const target = join(process.env.HOME || '', 'Desktop/muninn-landing/index.html');
+  const target = join(process.env.HOME || '', 'Desktop/mimir-landing/index.html');
   console.log(`\nFile created: ${existsSync(target)}`);
   if (existsSync(target)) {
     const content = await readFile(target, 'utf-8');

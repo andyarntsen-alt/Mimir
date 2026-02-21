@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Soul Manager Tests
+// MIMIR — Soul Manager Tests
 // ═══════════════════════════════════════════════════════════
 
 import { describe, it, beforeEach, afterEach } from 'node:test';
@@ -15,7 +15,7 @@ describe('SoulManager', () => {
   let soul: SoulManager;
 
   beforeEach(async () => {
-    dataDir = await mkdtemp(join(tmpdir(), 'muninn-soul-test-'));
+    dataDir = await mkdtemp(join(tmpdir(), 'mimir-soul-test-'));
     soul = new SoulManager(dataDir);
     await soul.initialize();
   });
@@ -30,7 +30,7 @@ describe('SoulManager', () => {
 
   it('should parse soul correctly', async () => {
     const s = await soul.getSoul();
-    assert.equal(s.name, 'Muninn');
+    assert.equal(s.name, 'Mimir');
     assert.equal(s.relationshipPhase, 'curious');
     assert.equal(s.version, 1);
     assert.ok(s.personality.length > 0);

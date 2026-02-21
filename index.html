@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Muninn · AI som husker deg</title>
+  <title>Mimir · AI som husker deg</title>
   <meta name="description" content="Personlig AI med ekte hukommelse. Open source. Kjører lokalt. Dine data.">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='80' font-size='80'%3E%F0%9F%90%A6%3C/text%3E%3C/svg%3E">
   <style>
@@ -153,11 +153,11 @@
 
   <!-- Nav -->
   <nav>
-    <a href="#" class="logo"><span>Muninn</span></a>
+    <a href="#" class="logo"><span>Mimir</span></a>
     <div class="nav-right">
       <a href="#demo" class="nav-link">Demo</a>
       <a href="#hvordan" class="nav-link">Hvordan</a>
-      <a href="https://github.com/andyarntsen/muninn" target="_blank" class="nav-btn">GitHub ↗</a>
+      <a href="https://github.com/andyarntsen/mimir" target="_blank" class="nav-btn">GitHub ↗</a>
     </div>
   </nav>
 
@@ -173,7 +173,7 @@
         En personlig AI som kjenner deg over tid. Husker hva du har sagt, utvikler seg, og lever på din maskin. Ikke i skyen.
       </p>
       <div class="hero-cta">
-        <a href="https://github.com/andyarntsen/muninn" target="_blank" class="btn-primary">Installer fra GitHub</a>
+        <a href="https://github.com/andyarntsen/mimir" target="_blank" class="btn-primary">Installer fra GitHub</a>
         <a href="#demo" class="btn-ghost">Se demo ↓</a>
       </div>
     </div>
@@ -193,7 +193,7 @@
   <!-- ═══ MISSION ═══ -->
   <section class="mission">
     <p class="mission-text reveal">
-      Andre AI-er glemmer deg mellom hver samtale. Muninn gjør ikke det. Han <strong>bygger en forståelse av hvem du er</strong>, hva du jobber med, hva du bryr deg om, og bruker det til å møte deg der du faktisk er. <strong>Ikke der du var sist.</strong>
+      Andre AI-er glemmer deg mellom hver samtale. Mimir gjør ikke det. Han <strong>bygger en forståelse av hvem du er</strong>, hva du jobber med, hva du bryr deg om, og bruker det til å møte deg der du faktisk er. <strong>Ikke der du var sist.</strong>
     </p>
   </section>
 
@@ -202,7 +202,7 @@
     <div class="section-header reveal">
       <div class="section-label">SE DET I AKSJON</div>
       <div class="section-title">Hukommelse som faktisk virker</div>
-      <div class="section-desc">Muninn husker fakta, utvikler personlighet, og holder oversikt over tid.</div>
+      <div class="section-desc">Mimir husker fakta, utvikler personlighet, og holder oversikt over tid.</div>
     </div>
 
     <div class="terminal reveal">
@@ -210,7 +210,7 @@
         <div class="terminal-dot r"></div>
         <div class="terminal-dot y"></div>
         <div class="terminal-dot g"></div>
-        <span class="terminal-title">muninn · terminal-chat</span>
+        <span class="terminal-title">mimir · terminal-chat</span>
       </div>
       <div class="terminal-body" id="term-body">
         <div><span class="t-prompt">you›</span> <span class="t-cmd" id="t-cmd"></span><span class="cursor-blink" id="t-cursor"></span></div>
@@ -228,7 +228,7 @@
       <div class="how-card reveal">
         <div class="how-num">01</div>
         <h3>Klon og bygg</h3>
-        <code class="how-cmd">git clone github.com/andyarntsen/muninn<br>npm install && npm run build</code>
+        <code class="how-cmd">git clone github.com/andyarntsen/mimir<br>npm install && npm run build</code>
         <p>Krever Node.js 18+ og Claude CLI.</p>
       </div>
       <div class="how-card reveal reveal-delay-1">
@@ -290,12 +290,12 @@
   <section class="cta-section">
     <h2 class="reveal">Klar for en AI<br>som kjenner deg?</h2>
     <p class="reveal reveal-delay-1">Open source. Gratis. Ti minutter.<br>Hukommelsen varer for alltid.</p>
-    <a href="https://github.com/andyarntsen/muninn" target="_blank" class="btn-primary reveal reveal-delay-2">Installer fra GitHub</a>
+    <a href="https://github.com/andyarntsen/mimir" target="_blank" class="btn-primary reveal reveal-delay-2">Installer fra GitHub</a>
   </section>
 
   <!-- ═══ FOOTER ═══ -->
   <footer>
-    <div class="f-left">MUNINN &middot; BYGGET AV <a href="https://github.com/andyarntsen">ANDY</a> & CLAUDE &middot; 2026</div>
+    <div class="f-left">MIMIR &middot; BYGGET AV <a href="https://github.com/andyarntsen">ANDY</a> & CLAUDE &middot; 2026</div>
   </footer>
 
 <script>
@@ -314,8 +314,8 @@
   // Terminal demo
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
   const conversation=[
-    {who:'you',text:'Hei Muninn, husker du hva jeg jobber med?'},
-    {who:'muninn',lines:[
+    {who:'you',text:'Hei Mimir, husker du hva jeg jobber med?'},
+    {who:'mimir',lines:[
       {t:'mem',v:'→ Husker: du jobber som utvikler hos Iterate'},
       {t:'mem',v:'→ Husker: du holder på med en React-migrering'},
       {t:'mem',v:'→ Husker: deadline er 15. mars'},
@@ -325,7 +325,7 @@
       {t:'out',v:'Hvordan går det? Sist sa du at API-laget var ferdig.'},
     ]},
     {who:'you',text:'Spot on. Kan du sjekke om det er nye issues i repoet?'},
-    {who:'muninn',lines:[
+    {who:'mimir',lines:[
       {t:'out',v:'Sjekker GitHub...'},
       {t:'br'},
       {t:'gold',v:'3 nye issues siden sist:'},
@@ -337,7 +337,7 @@
       {t:'out',v:'på koden?'},
     ]},
     {who:'you',text:'Ja, og sett en påminnelse om å oppdatere README i morgen.'},
-    {who:'muninn',lines:[
+    {who:'mimir',lines:[
       {t:'ok',v:'✓ Påminnelse satt: "Oppdater README badges" → i morgen 09:00'},
       {t:'br'},
       {t:'out',v:'Åpner src/dashboard/Dashboard.tsx...'},
@@ -375,9 +375,9 @@
         for(let i=0;i<3;i++){dots.textContent+='.';await sleep(250)}
         body.removeChild(dots);
 
-        const muninn=document.createElement('div');
-        muninn.innerHTML='<span class="t-gold">muninn›</span>';
-        body.insertBefore(muninn,body.lastElementChild);
+        const mimir=document.createElement('div');
+        mimir.innerHTML='<span class="t-gold">mimir›</span>';
+        body.insertBefore(mimir,body.lastElementChild);
 
         for(const ln of msg.lines){
           const el=document.createElement('div');

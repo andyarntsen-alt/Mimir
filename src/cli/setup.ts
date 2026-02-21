@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Setup Wizard
+// MIMIR — Setup Wizard
 // The first flight: helping the user set up their raven
 // ═══════════════════════════════════════════════════════════
 
@@ -10,7 +10,7 @@ import { writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import YAML from 'yaml';
-import type { MuninnConfig } from '../core/types.js';
+import type { MimirConfig } from '../core/types.js';
 
 export async function setupWizard(): Promise<void> {
   console.log(chalk.dim('  La oss sette opp din personlige AI.\n'));
@@ -20,8 +20,8 @@ export async function setupWizard(): Promise<void> {
   const { dataDir } = await inquirer.prompt([{
     type: 'input',
     name: 'dataDir',
-    message: 'Hvor skal Muninn lagre hukommelsen sin?',
-    default: '~/.muninn',
+    message: 'Hvor skal Mimir lagre hukommelsen sin?',
+    default: '~/.mimir',
   }]);
 
   const resolvedDir = dataDir.replace('~', process.env.HOME || '');
@@ -232,7 +232,7 @@ export async function setupWizard(): Promise<void> {
   const { enableDesktop } = await inquirer.prompt([{
     type: 'confirm',
     name: 'enableDesktop',
-    message: 'Gi Muninn tilgang til filer og terminal på maskinen din?',
+    message: 'Gi Mimir tilgang til filer og terminal på maskinen din?',
     default: true,
   }]);
 
@@ -249,7 +249,7 @@ export async function setupWizard(): Promise<void> {
     const { dirs } = await inquirer.prompt([{
       type: 'checkbox',
       name: 'dirs',
-      message: 'Hvilke mapper skal Muninn ha tilgang til?',
+      message: 'Hvilke mapper skal Mimir ha tilgang til?',
       choices: [
         ...defaultDirs.map(d => ({ name: d.replace(home, '~'), value: d, checked: true })),
         { name: '+ Legg til egen mappe', value: '__custom__' },
@@ -300,11 +300,11 @@ export async function setupWizard(): Promise<void> {
   const { customizeSoul } = await inquirer.prompt([{
     type: 'confirm',
     name: 'customizeSoul',
-    message: 'Tilpasse Muninns personlighet?',
+    message: 'Tilpasse Mimirs personlighet?',
     default: false,
   }]);
 
-  let soulName = 'Muninn';
+  let soulName = 'Mimir';
   let soulRole = 'Din personlige AI — jeg husker alt så du slipper.';
 
   if (customizeSoul) {
@@ -313,7 +313,7 @@ export async function setupWizard(): Promise<void> {
         type: 'input',
         name: 'name',
         message: 'Hva skal AI-en hete?',
-        default: 'Muninn',
+        default: 'Mimir',
       },
       {
         type: 'input',
@@ -330,7 +330,7 @@ export async function setupWizard(): Promise<void> {
   // CREATE EVERYTHING
   // ═══════════════════════════════════════════════════════
 
-  const spinner = ora('Bygger Muninns rede...').start();
+  const spinner = ora('Bygger Mimirs rede...').start();
 
   // Create directories
   for (const dir of ['facts', 'entities', 'conversations']) {
@@ -404,7 +404,7 @@ curious
   // Create interaction count
   await writeFile(join(resolvedDir, 'interaction-count'), '0', 'utf-8');
 
-  spinner.succeed(chalk.green('Muninn er klar!'));
+  spinner.succeed(chalk.green('Mimir er klar!'));
 
   // ─── Summary ──────────────────────────────────────────
 
@@ -422,9 +422,9 @@ curious
   console.log(chalk.dim('\n  Neste steg:'));
   if (backend === 'agent-sdk') {
     console.log(chalk.dim('  1. Sørg for at claude CLI er installert og innlogget'));
-    console.log(chalk.dim('  2. Kjør: ') + chalk.white('muninn start') + chalk.dim(' eller ') + chalk.white('muninn chat'));
+    console.log(chalk.dim('  2. Kjør: ') + chalk.white('mimir start') + chalk.dim(' eller ') + chalk.white('mimir chat'));
   } else {
-    console.log(chalk.dim('  Kjør: ') + chalk.white('muninn start') + chalk.dim(' eller ') + chalk.white('muninn chat'));
+    console.log(chalk.dim('  Kjør: ') + chalk.white('mimir start') + chalk.dim(' eller ') + chalk.white('mimir chat'));
   }
   console.log();
 }

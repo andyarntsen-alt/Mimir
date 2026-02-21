@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Policy Engine Tests
+// MIMIR — Policy Engine Tests
 // Ensuring security boundaries hold
 // ═══════════════════════════════════════════════════════════
 
@@ -23,7 +23,7 @@ describe('PolicyEngine', () => {
   };
 
   beforeEach(async () => {
-    dataDir = await mkdtemp(join(tmpdir(), 'muninn-test-'));
+    dataDir = await mkdtemp(join(tmpdir(), 'mimir-test-'));
     policy = new PolicyEngine(defaultConfig, dataDir);
     await policy.initialize();
   });
@@ -76,7 +76,7 @@ describe('PolicyEngine', () => {
       expect(decision.risk).toBe('blocked');
     });
 
-    it('allows reading Muninn data directory', () => {
+    it('allows reading Mimir data directory', () => {
       const decision = policy.evaluate('read_file', {
         path: join(dataDir, 'SOUL.md'),
       });

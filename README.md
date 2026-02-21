@@ -1,16 +1,16 @@
-# Muninn
+# Mimir
 
-Your personal AI that remembers everything. Open source, private, evolving.
+Your personal AI that understands, not just remembers. Open source, private, evolving.
 
-Named after Odin's raven of memory from Norse mythology. Muninn is an AI agent that lives in your Telegram, remembers your conversations, learns your preferences, and evolves its personality over time.
+Named after Mimir from Norse mythology, the wisest of all beings. Odin sacrificed his eye to drink from Mimir's well, because true understanding costs something. Mimir is an AI agent that lives in your Telegram, remembers your conversations, learns your preferences, and evolves its personality over time.
 
-## What makes Muninn different
+## What makes Mimir different
 
-Most AI assistants forget you the moment the conversation ends. Muninn doesn't.
+Most AI assistants forget you the moment the conversation ends. Mimir doesn't.
 
-**Temporal memory.** Facts are stored with time dimensions. Muninn knows what *was* true and what *is* true. When things change, old facts are invalidated, not deleted.
+**Temporal memory.** Facts are stored with time dimensions. Mimir knows what *was* true and what *is* true. When things change, old facts are invalidated, not deleted.
 
-**Evolving identity.** Muninn's personality is defined in a `SOUL.md` file that it modifies itself during reflection cycles. It starts curious and grows into a proactive partner.
+**Evolving identity.** Mimir's personality is defined in a `SOUL.md` file that it modifies itself during reflection cycles. It starts curious and grows into a proactive partner.
 
 **Relationship progression.** Four phases: Curious, Learning, Understanding, Proactive. Earned through genuine interaction, not time alone.
 
@@ -21,8 +21,8 @@ Most AI assistants forget you the moment the conversation ends. Muninn doesn't.
 You need Node.js 20+, a Telegram bot token from [@BotFather](https://t.me/BotFather), and a Claude API key from [Anthropic](https://console.anthropic.com).
 
 ```bash
-git clone https://github.com/andyarntsen-alt/Muninn.git
-cd Muninn
+git clone https://github.com/andyarntsen-alt/Mimir.git
+cd Mimir
 npm install
 npm run setup
 npm run build
@@ -48,7 +48,7 @@ node dist/cli/index.js start
        │         │          │
 ┌──────▼───┐ ┌───▼────┐ ┌──▼──────────────┐
 │  Memory  │ │  Soul  │ │    Tools        │
-│ (Muninn) │ │Manager │ │ Read/write files│
+│ (Mimir)  │ │Manager │ │ Read/write files│
 │          │ │        │ │ Run commands    │
 │ Facts    │ │ SOUL.md│ │ Web browsing    │
 │ Entities │ │ Evolve │ │ (extensible)    │
@@ -63,14 +63,14 @@ node dist/cli/index.js start
 └─────────────────────────────────────────────┘
 ```
 
-**Huginn** (Old Norse: "thought") is the reasoning engine. **Muninn** (Old Norse: "memory") is the memory engine.
+**Huginn** (Old Norse: "thought") is the reasoning engine. **Mimir** (Old Norse: "the wise one") is the memory and understanding engine.
 
 ## Data storage
 
-Everything is stored in `~/.muninn/` as human-readable files:
+Everything is stored in `~/.mimir/` as human-readable files:
 
 ```
-~/.muninn/
+~/.mimir/
 ├── config.yaml          # Configuration
 ├── SOUL.md              # Agent identity (self-modifying)
 ├── evolution.json       # Evolution history
@@ -90,7 +90,7 @@ You can inspect, edit, or version-control your agent's entire memory with git.
 | Command | Description |
 |---------|-------------|
 | `/soul` | View current SOUL.md |
-| `/facts` | What Muninn remembers about you |
+| `/facts` | What Mimir remembers about you |
 | `/goals` | Manage goals |
 | `/reflect` | Trigger a reflection cycle |
 | `/stats` | Analytics and statistics |
@@ -110,7 +110,7 @@ Or just talk. That's the whole point.
 
 ## Configuration
 
-After `npm run setup`, your config lives in `~/.muninn/config.yaml`:
+After `npm run setup`, your config lives in `~/.mimir/config.yaml`:
 
 ```yaml
 model: claude-sonnet-4-20250514
@@ -121,16 +121,16 @@ allowedUsers:
 language: no
 reflectionInterval: 24
 maxContextMessages: 20
-dataDir: ~/.muninn
+dataDir: ~/.mimir
 ```
 
 ## Reflection system
 
-Periodically, Muninn pauses to reflect. It reviews recent conversations, identifies patterns, considers whether its personality should evolve, and checks for relationship phase transitions. Each reflection creates a versioned backup of SOUL.md, so you can trace how your agent evolved over time.
+Periodically, Mimir pauses to reflect. It reviews recent conversations, identifies patterns, considers whether its personality should evolve, and checks for relationship phase transitions. Each reflection creates a versioned backup of SOUL.md, so you can trace how your agent evolved over time.
 
 ## Contributing
 
-Muninn is open source under MIT. Contributions welcome.
+Mimir is open source under MIT. Contributions welcome.
 
 ## License
 

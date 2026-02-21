@@ -1,11 +1,11 @@
 {
-  "name": "muninn",
+  "name": "mimir",
   "version": "0.1.0",
   "description": "Your personal AI that remembers everything. Open-source, private, evolving.",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "muninn": "dist/cli/index.js"
+    "mimir": "dist/cli/index.js"
   },
   "scripts": {
     "build": "tsc",

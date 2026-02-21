@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // ═══════════════════════════════════════════════════════════
-// MUNINN — CLI Entry Point
-// Type `muninn` and the raven appears
+// MIMIR — CLI Entry Point
+// Type `mimir` and the raven appears
 // ═══════════════════════════════════════════════════════════
 
 import { Command } from 'commander';
@@ -12,7 +12,7 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import YAML from 'yaml';
 import { setupWizard } from './setup.js';
-import { startMuninn } from '../index.js';
+import { startMimir } from '../index.js';
 import { startChat } from './chat.js';
 
 // ─── ASCII Art ──────────────────────────────────────────
@@ -41,7 +41,7 @@ ${chalk.cyan('    └───────────────────�
 
 // ─── Helpers ────────────────────────────────────────────
 
-const DEFAULT_DATA_DIR = join(process.env.HOME || '', '.muninn');
+const DEFAULT_DATA_DIR = join(process.env.HOME || '', '.mimir');
 
 function isConfigured(dataDir: string): boolean {
   return existsSync(join(dataDir, 'config.yaml'));
@@ -56,7 +56,7 @@ async function getSoulInfo(dataDir: string): Promise<{ name: string; phase: stri
 
     const nameMatch = content.match(/\*\*Name:\*\*\s*(.+)/);
     const phaseMatch = content.match(/## Relationship Phase\s*\n(\w+)/);
-    const name = nameMatch ? nameMatch[1].trim() : 'Muninn';
+    const name = nameMatch ? nameMatch[1].trim() : 'Mimir';
     const phase = phaseMatch ? phaseMatch[1].trim() : 'curious';
 
     const countPath = join(dataDir, 'interaction-count');
@@ -90,7 +90,7 @@ async function interactiveStart(): Promise<void> {
   if (!isConfigured(dataDir)) {
     // ─── First time: show welcome + run setup ───────────
     console.log(RAVEN_BANNER);
-    console.log(chalk.dim('  Velkommen! La oss sette opp Muninn.\n'));
+    console.log(chalk.dim('  Velkommen! La oss sette opp Mimir.\n'));
 
     await setupWizard();
     return;
@@ -122,7 +122,7 @@ async function interactiveStart(): Promise<void> {
 
   switch (action) {
     case 'start':
-      await startMuninn(dataDir);
+      await startMimir(dataDir);
       break;
 
     case 'chat':
@@ -200,7 +200,7 @@ async function exportData(dataDir: string): Promise<void> {
 
   const data = await memory.exportAll();
   const { writeFile: writeFs } = await import('node:fs/promises');
-  const outputPath = './muninn-export.json';
+  const outputPath = './mimir-export.json';
   await writeFs(outputPath, JSON.stringify(data, null, 2), 'utf-8');
 
   console.log(chalk.green(`\n  ✅ Eksportert til ${outputPath}`));
@@ -214,8 +214,8 @@ async function exportData(dataDir: string): Promise<void> {
 const program = new Command();
 
 program
-  .name('muninn')
-  .description('🐦 Muninn — Your personal AI that remembers everything')
+  .name('mimir')
+  .description('🐦 Mimir — Your personal AI that remembers everything')
   .version('0.1.0');
 
 // Default action: interactive menu
@@ -226,7 +226,7 @@ program
 
 program
   .command('init')
-  .description('Sett opp Muninn for første gang')
+  .description('Sett opp Mimir for første gang')
   .action(async () => {
     console.log(RAVEN_BANNER);
     await setupWizard();
@@ -238,12 +238,12 @@ program
   .option('-d, --data-dir <path>', 'Datamappe', DEFAULT_DATA_DIR)
   .action(async (options) => {
     const dataDir = options.dataDir.replace('~', process.env.HOME || '');
-    await startMuninn(dataDir);
+    await startMimir(dataDir);
   });
 
 program
   .command('chat')
-  .description('Chat med Muninn i terminalen')
+  .description('Chat med Mimir i terminalen')
   .option('-d, --data-dir <path>', 'Datamappe', DEFAULT_DATA_DIR)
   .action(async (options) => {
     const dataDir = options.dataDir.replace('~', process.env.HOME || '');
@@ -252,7 +252,7 @@ program
 
 program
   .command('status')
-  .description('Vis Muninns status')
+  .description('Vis Mimirs status')
   .option('-d, --data-dir <path>', 'Datamappe', DEFAULT_DATA_DIR)
   .action(async (options) => {
     const dataDir = options.dataDir.replace('~', process.env.HOME || '');
@@ -261,7 +261,7 @@ program
 
 program
   .command('export')
-  .description('Eksporter all Muninn-data som JSON')
+  .description('Eksporter all Mimir-data som JSON')
   .option('-d, --data-dir <path>', 'Datamappe', DEFAULT_DATA_DIR)
   .action(async (options) => {
     const dataDir = options.dataDir.replace('~', process.env.HOME || '');

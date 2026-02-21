@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Soul Manager
-// The identity system that makes Muninn evolve
+// MIMIR — Soul Manager
+// The identity system that makes Mimir evolve
 // Inspired by Locke: identity = continuity of memory + self-awareness
 //
 // The evolution log is Chalmers' Hard Problem made concrete:
@@ -18,8 +18,8 @@ import type { Soul, RelationshipPhase, EvolutionEntry } from '../core/types.js';
 const DEFAULT_SOUL_TEMPLATE = `# SOUL.md — Who I Am
 
 ## Identity
-- **Name:** Muninn
-- **Role:** Your personal AI companion — I remember everything so you don't have to.
+- **Name:** Mimir
+- **Role:** Your personal AI companion — I understand, not just remember.
 - **Version:** 1
 
 ## Personality
@@ -105,7 +105,7 @@ export class SoulManager {
     const raw = await readFile(this.soulPath, 'utf-8');
 
     const soul: Soul = {
-      name: this.extractField(raw, 'Name') || 'Muninn',
+      name: this.extractField(raw, 'Name') || 'Mimir',
       role: this.extractField(raw, 'Role') || 'Personal AI companion',
       personality: this.extractList(raw, 'Personality'),
       values: this.extractList(raw, 'Values'),

@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Entry Point
+// MIMIR — Entry Point
 // Where two ravens take flight
 // ═══════════════════════════════════════════════════════════
 
@@ -8,17 +8,46 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import YAML from 'yaml';
 import cron from 'node-cron';
-import type { MuninnConfig, PolicyConfig } from './core/types.js';
+import type { MimirConfig, PolicyConfig } from './core/types.js';
 import { HuginnRuntime } from './core/runtime.js';
 import { MemoryEngine } from './memory/memory-engine.js';
 import { SoulManager } from './identity/soul-manager.js';
 import { GoalsManager } from './identity/goals-manager.js';
 import { Reflector } from './reflection/reflector.js';
-import { MuninnBot } from './telegram/bot.js';
+import { MimirBot } from './telegram/bot.js';
 import { ProactiveEngine } from './telegram/proactive.js';
+import { generateCheapResponse } from './core/llm.js';
 import { PolicyEngine } from './core/policy-engine.js';
 import { ApprovalManager } from './telegram/approval.js';
 import { initializeTools } from './tools/index.js';
+
+/** Turn reflection insights into a natural message worth sharing */
+async function generateShareableInsight(soulName: string, insights: string[], language: string = 'no'): Promise<string | null> {
+  try {
+    const text = await generateCheapResponse({
+      prompt: `You are ${soulName}. During your reflection, you discovered these insights:
+${insights.map(i => `- ${i}`).join('\n')}
+
+If any of these are genuinely interesting or useful to share with your human, write a short, natural message (1-2 sentences). Frame it as a thought you had, not a report.
+
+If none are worth sharing (too generic, too meta, or just internal bookkeeping), respond with just "NONE".
+
+Examples of good messages:
+- "Jeg tenkte på noe. Du har snakket mye om [X] i det siste, men aldri nevnt [Y]. Bare nysgjerrig."
+- "Hei, noe slo meg: [observation]. Tenkte det var verdt å nevne."
+
+Examples of NOT worth sharing:
+- "I noticed the user prefers Norwegian" (boring metadata)
+- "Interaction count has increased" (internal bookkeeping)
+
+${language === 'no' ? 'Write in Norwegian.' : 'Write in English.'}`,
+    });
+    if (!text || text.trim().toUpperCase() === 'NONE') return null;
+    return text;
+  } catch {
+    return null;
+  }
+}
 
 /** Default policy config — conservative defaults */
 const DEFAULT_POLICY: PolicyConfig = {
@@ -30,11 +59,11 @@ const DEFAULT_POLICY: PolicyConfig = {
 };
 
 /**
- * Start Muninn — the full system.
+ * Start Mimir — the full system.
  *
  * Initialization order:
  * 1. Load config
- * 2. Initialize memory (Muninn — the memory raven)
+ * 2. Initialize memory (Mimir — the memory raven)
  * 3. Initialize soul (identity system)
  * 4. Initialize policy engine + approval system
  * 5. Initialize tools (+ plugins)
@@ -44,18 +73,18 @@ const DEFAULT_POLICY: PolicyConfig = {
  * 9. Start Telegram bot
  * 10. Start cron jobs (reminders, reflection, proactive)
  */
-export async function startMuninn(dataDir: string): Promise<void> {
-  console.log('🐦 Muninn is waking up...\n');
+export async function startMimir(dataDir: string): Promise<void> {
+  console.log('🐦 Mimir is waking up...\n');
 
   // ─── 1. Load config ─────────────────────────────────────
   const configPath = join(dataDir, 'config.yaml');
   if (!existsSync(configPath)) {
-    console.error('❌ No config found. Run: muninn init');
+    console.error('❌ No config found. Run: mimir init');
     process.exit(1);
   }
 
   const configContent = await readFile(configPath, 'utf-8');
-  const config: MuninnConfig = YAML.parse(configContent);
+  const config: MimirConfig = YAML.parse(configContent);
 
   // Resolve env: references in API key
   if (config.apiKey.startsWith('env:')) {
@@ -141,7 +170,7 @@ export async function startMuninn(dataDir: string): Promise<void> {
 
   // ─── 9. Start Telegram Bot ─────────────────────────────
   console.log('💬 Connecting to Telegram...');
-  const bot = new MuninnBot(config, runtime, reflector, soul, memory, goals);
+  const bot = new MimirBot(config, runtime, reflector, soul, memory, goals);
   bot.setProactiveEngine(proactive);
 
   // Connect approval manager to bot (for inline keyboard callbacks)
@@ -188,20 +217,30 @@ export async function startMuninn(dataDir: string): Promise<void> {
     }
   });
 
-  // Reflection check every 6 hours
+  // Reflection check every 6 hours — share interesting insights with user
   cron.schedule('0 */6 * * *', async () => {
     try {
-      await runtime.maybeReflect();
+      const result = await runtime.maybeReflect();
+      // If reflection produced insights worth sharing, send them
+      if (result && result.insights && result.insights.length > 0) {
+        const soulData = await soul.getSoul();
+        const shareableInsight = await generateShareableInsight(soulData.name, result.insights, config.language);
+        if (shareableInsight) {
+          for (const userId of config.allowedUsers) {
+            await bot.sendMessage(userId, shareableInsight);
+          }
+        }
+      }
     } catch (error) {
       console.error('[Cron] Reflection check failed:', error);
     }
   });
 
-  console.log('\n🐦 Muninn is airborne. Waiting for messages...\n');
+  console.log('\n🐦 Mimir is airborne. Waiting for messages...\n');
 
   // ─── Graceful shutdown ─────────────────────────────────
   const shutdown = async () => {
-    console.log('\n🐦 Muninn is landing...');
+    console.log('\n🐦 Mimir is landing...');
     await bot.stop();
     process.exit(0);
   };
@@ -216,6 +255,6 @@ if (isDirectRun) {
   const args = process.argv.slice(2);
   if (args.length > 0 && !args[0].startsWith('-')) {
     const dataDir = args[0].replace('~', process.env.HOME || '');
-    startMuninn(dataDir);
+    startMimir(dataDir);
   }
 }

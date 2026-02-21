@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Shell Tools
+// MIMIR — Shell Tools
 // Run commands on the computer — heavily gated by Policy Engine
 // Every command requires at minimum logging, most require approval
 // ═══════════════════════════════════════════════════════════

@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Agent Query Runner
+// MIMIR — Agent Query Runner
 // Consolidates the Agent SDK query + streaming logic
 // ═══════════════════════════════════════════════════════════
 
@@ -29,7 +29,7 @@ export interface AgentQueryResult {
 export async function runAgentQuery(options: AgentQueryOptions): Promise<AgentQueryResult> {
   const mcpServers: Record<string, any> = {};
   if (options.mcpServer) {
-    mcpServers['muninn-tools'] = options.mcpServer;
+    mcpServers['mimir-tools'] = options.mcpServer;
   }
 
   const conversation = query({

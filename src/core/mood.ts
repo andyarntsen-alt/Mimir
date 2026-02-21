@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Mood Detection
+// MIMIR — Mood Detection
 // Brentano's intentionality: mental states are always ABOUT something
 // Detecting the emotional undertone to respond appropriately
 // ═══════════════════════════════════════════════════════════

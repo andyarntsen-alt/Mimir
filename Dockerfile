@@ -18,10 +18,10 @@ RUN mkdir -p /data
 
 # Environment variables
 ENV NODE_ENV=production
-ENV MUNINN_DATA_DIR=/data
+ENV MIMIR_DATA_DIR=/data
 
 # The data directory should be mounted as a volume
 VOLUME /data
 
-# Start Muninn
+# Start Mimir
 CMD ["node", "dist/cli/index.js", "start", "--data-dir", "/data"]

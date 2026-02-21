@@ -1,11 +1,11 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Core Runtime Engine (Huginn)
+// MIMIR — Core Runtime Engine (Huginn)
 // The reasoning mind that orchestrates memory, identity, and action
 // Now powered by the Claude Agent SDK for native tool support
 // ═══════════════════════════════════════════════════════════
 
 import type { createSdkMcpServer } from '@anthropic-ai/claude-agent-sdk';
-import type { MuninnConfig, Soul, Message, Conversation, Tool } from './types.js';
+import type { MimirConfig, Soul, Message, Conversation, Tool } from './types.js';
 import type { MemoryEngine } from '../memory/memory-engine.js';
 import type { SoulManager } from '../identity/soul-manager.js';
 import type { Reflector } from '../reflection/reflector.js';
@@ -18,7 +18,7 @@ import { buildMcpServer, getAllowedTools, createToolPermissionCallback } from '.
 import { runAgentQuery } from './agent-query.js';
 
 export interface RuntimeOptions {
-  config: MuninnConfig;
+  config: MimirConfig;
   memoryEngine: MemoryEngine;
   soulManager: SoulManager;
   goalsManager: GoalsManager;
@@ -27,18 +27,18 @@ export interface RuntimeOptions {
 }
 
 /**
- * The Huginn Runtime — the reasoning core of Muninn.
+ * The Huginn Runtime — the reasoning core of Mimir.
  *
  * Named after Odin's raven of thought, Huginn processes
  * conversations, decides actions, and coordinates between
- * memory (Muninn) and identity (Soul).
+ * memory (Mimir) and identity (Soul).
  *
  * Uses the Claude Agent SDK to spawn Claude Code CLI directly.
  * This means: native tool support, no proxy needed, uses your
  * Claude Max/Pro subscription for free.
  */
 export class HuginnRuntime {
-  private config: MuninnConfig;
+  private config: MimirConfig;
   private memory: MemoryEngine;
   private rateLimiter: RateLimiter;
   private factExtractor: FactExtractor;
@@ -63,7 +63,7 @@ export class HuginnRuntime {
     });
     this.factExtractor = new FactExtractor(options.config, options.memoryEngine);
 
-    // Build MCP server with all Muninn tools
+    // Build MCP server with all Mimir tools
     this.mcpServer = buildMcpServer(this.memory, this.tools);
   }
 
@@ -254,8 +254,8 @@ export class HuginnRuntime {
     this.lastSessionId = null;
   }
 
-  /** Check if it's time for reflection */
-  async maybeReflect(): Promise<void> {
+  /** Check if it's time for reflection — returns result if reflection ran */
+  async maybeReflect(): Promise<import('./types.js').ReflectionResult | null> {
     const soul = await this.soul.getSoul();
     const lastReflection = soul.lastReflection
       ? new Date(soul.lastReflection)
@@ -266,8 +266,9 @@ export class HuginnRuntime {
 
     if (hoursSinceReflection >= this.config.reflectionInterval) {
       console.log('[Huginn] Time for reflection...');
-      await this.reflector.reflect();
+      return await this.reflector.reflect();
     }
+    return null;
   }
 
   /** Get current soul state */

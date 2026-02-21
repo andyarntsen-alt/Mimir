@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MUNINN — Mood Detection Tests
+// MIMIR — Mood Detection Tests
 // ═══════════════════════════════════════════════════════════
 
 import { describe, it } from 'node:test';
