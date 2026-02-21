@@ -210,6 +210,17 @@ export async function startMimir(dataDir: string): Promise<void> {
       for (const msg of messages) {
         for (const userId of config.allowedUsers) {
           await bot.sendMessage(userId, msg.text);
+          // Store proactive message in memory so Mimir remembers what it said
+          await memory.saveConversation({
+            id: `proactive-${Date.now()}`,
+            startedAt: new Date().toISOString(),
+            messages: [{
+              role: 'assistant',
+              content: msg.text,
+              timestamp: new Date().toISOString(),
+              metadata: { trigger: msg.trigger, proactive: true },
+            }],
+          });
         }
       }
     } catch (error) {
@@ -228,6 +239,17 @@ export async function startMimir(dataDir: string): Promise<void> {
         if (shareableInsight) {
           for (const userId of config.allowedUsers) {
             await bot.sendMessage(userId, shareableInsight);
+            // Store reflection insight in memory so Mimir remembers sharing it
+            await memory.saveConversation({
+              id: `reflection-${Date.now()}`,
+              startedAt: new Date().toISOString(),
+              messages: [{
+                role: 'assistant',
+                content: shareableInsight,
+                timestamp: new Date().toISOString(),
+                metadata: { trigger: 'reflection_insight', proactive: true },
+              }],
+            });
           }
         }
       }

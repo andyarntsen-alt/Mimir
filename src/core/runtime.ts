@@ -136,7 +136,13 @@ export class HuginnRuntime {
       ? recentMessages.map(m => `${m.role === 'user' ? 'Bruker' : 'Du'}: ${m.content}`).join('\n\n') + '\n\n'
       : '';
 
-    const fullPrompt = historyContext + `Bruker: ${userMessage}`;
+    // Include summaries from previous conversations so Mimir remembers across restarts
+    const previousSummaries = await this.memory.getConversationSummaries(5);
+    const summaryContext = previousSummaries.length > 0
+      ? `Oppsummeringer fra tidligere samtaler:\n${previousSummaries.map(s => `- ${s}`).join('\n')}\n\n`
+      : '';
+
+    const fullPrompt = summaryContext + historyContext + `Bruker: ${userMessage}`;
     const allowedTools = getAllowedTools(this.tools);
     console.log(`[Huginn] Sending to Agent SDK with ${allowedTools.length} allowed tools`);
 

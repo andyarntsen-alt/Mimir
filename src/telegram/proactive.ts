@@ -195,6 +195,13 @@ export class ProactiveEngine {
     // Save state
     await this.saveState();
 
+    // Only send ONE message per check — pick the highest priority
+    if (messages.length > 1) {
+      const priorityOrder = { high: 3, medium: 2, low: 1 };
+      messages.sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority]);
+      return [messages[0]];
+    }
+
     return messages;
   }
 
